@@ -1,0 +1,41 @@
+{#
+#
+# (c) Copyright 2017 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2017 SUSE LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+#}
+#!/bin/bash
+{{ interface_file_marker }}
+PARAM_ACTION=$1
+PARAM_INTERFACE=$2
+
+PRE_UP=true
+POST_UP=true
+PRE_DOWN=true
+POST_DOWN=true
+
+if [ "$PARAM_ACTION" == "pre-up" ]; then
+  PRE_UP=false
+fi
+if [ "$PARAM_ACTION" == "post-up" ]; then
+  POST_UP=false
+fi
+if [ "$PARAM_ACTION" == "pre-down" ]; then
+  PRE_DOWN=false
+fi
+if [ "$PARAM_ACTION" == "post-down" ]; then
+  POST_DOWN=false
+fi
+

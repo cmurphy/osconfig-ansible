@@ -1,0 +1,56 @@
+{#
+#
+# (c) Copyright 2017 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2017 SUSE LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+#}
+{{ interface_file_marker }}
+{% if item.bootproto == 'static' %}
+BRIDGE_PORTS={{ item.device }}
+BRIDGE=yes
+BOOTPROTO=none
+{% if item.stp is defined %}
+STP={{ item.stp }}
+{% endif %}
+{% if item.address is defined %}
+IPADDR={{ item.address }}
+{% endif %}
+{% if item.netmask is defined %}
+PREFIXLEN={{ item.netmask }}
+{% endif %}
+{% if item.gateway is defined %}
+GATEWAY={{ item.gateway }}
+{% endif %}
+{% if item.mtu is defined %}
+MTU={{ item.mtu }}
+{% endif %}
+{% endif %}
+
+{% if item.bootproto == 'dhcp' %}
+BRIDGE_PORTS={{ item.device }}
+BRIDGE=yes
+BOOTPROTO=dhcp
+{% if item.stp is defined %}
+STP={{ item.stp }}
+{% endif %}
+{% if item.mtu is defined %}
+MTU={{ item.mtu }}
+{% endif %}
+{% endif %}
+PRE_UP_SCRIPT='wicked:{{ net_path }}/ifscript-{{ item.device }}.sh'
+POST_UP_SCRIPT='wicked:{{ net_path }}/ifscript-{{ item.device }}.sh'
+PRE_DOWN_SCRIPT='wicked:{{ net_path }}/ifscript-{{ item.device }}.sh'
+POST_DOWN_SCRIPT='wicked:{{ net_path }}/ifscript-{{ item.device }}.sh'
+
