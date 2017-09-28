@@ -28,6 +28,12 @@
     _repositories:
       - alias: openstack-newton
         name: cloud-openstack-newton
+      - alias: cloud8-openstack-devel
+        name: SUSE-OpenStack-Cloud-8-devel-staging
+      - alias: vertica
+        name: vertica
+      - alias: powerdns
+        name: powerdns
 
 - name: osconfig | setup-zypp | Check if specified SLES extras repos exist
   delegate_to: localhost
