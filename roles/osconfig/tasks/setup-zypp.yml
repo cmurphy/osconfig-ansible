@@ -34,6 +34,12 @@
         name: vertica
       - alias: powerdns
         name: powerdns
+      - alias: sle-12-ga-standard
+        name: sle-12-ga-standard
+      - alias: sle-12-update-standard
+        name: sle-12-update-standard
+      - alias: sle-12-sp2-update-products-manager31-standard
+        name: sle-12-sp2-update-products-manager31-standard
 
 - name: osconfig | setup-zypp | Check if specified SLES extras repos exist
   delegate_to: localhost
