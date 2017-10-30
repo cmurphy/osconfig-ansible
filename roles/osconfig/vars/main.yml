@@ -15,8 +15,8 @@
 # under the License.
 #
 ---
-hlmuser: "{{ ansible_env['USER'] }}"
-hlmuser_home: "{{ ansible_env['HOME'] }}"
+ardanauser: "{{ ansible_env['USER'] }}"
+ardanauser_home: "{{ ansible_env['HOME'] }}"
 
 osconfig_dns: "{{ dns |
     default(host.get('dns', {}) if host is defined else {}, true) |
