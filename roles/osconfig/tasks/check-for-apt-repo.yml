@@ -1,5 +1,5 @@
 #
-# (c) Copyright 2015-2016 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
 # (c) Copyright 2017 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -23,6 +23,15 @@
 
 - set_fact:
     deployer_apt_repo_present: "{{ _apt_repo_stat_result.stat.exists | bool }}"
+
+- name: osconfig | check-for-apt-repo | Checking for cmc32-repo
+  delegate_to: localhost
+  stat:
+    path: "{{ cmc32_apt_repo_dir }}/dists"
+  register: _cmc32_repo_stat_result
+
+- set_fact:
+    deployer_cmc32_repo_present: "{{ _cmc32_repo_stat_result.stat.exists | bool }}"
 
 - name: osconfig | check-for-apt-repo | Checking for thirdparty-repo
   delegate_to: localhost

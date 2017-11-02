@@ -1,5 +1,5 @@
 #
-# (c) Copyright 2015-2016 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
 # (c) Copyright 2017 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -29,16 +29,19 @@
   register: _apt_source_list_result
   when: deployer_apt_repo_present
 
-- name: osconfig | setup-apt | Add deployer apt repos
+- name: osconfig | setup-apt | Add deployer apt repo
   sudo: yes
   apt_repository:
-    repo: "{{ item }}"
+    repo: "deb [arch=amd64] {{ hlinux_url }} {{ hlinux_distro }} main contrib non-free"
     update_cache: no
-  with_items:
-    - "deb [arch=amd64] {{ hlinux_url }} {{ hlinux_distro }} main contrib non-free"
-    - "deb [arch=i386] {{ hlinux_server }}/ardana/cmc32 {{ hlinux_distro }} main"
-  register: _apt_repository_result
   when: deployer_apt_repo_present
+
+- name: osconfig | setup-apt | Add deployer cmc32 repo
+  sudo: yes
+  apt_repository:
+    repo: "deb [arch=i386] {{ hlinux_server }}/ardana/cmc32 {{ hlinux_distro }} main"
+    update_cache: no
+  when: deployer_cmc32_repo_present
 
 - name: osconfig | setup-apt | Get symlink source
   delegate_to: localhost
@@ -54,7 +57,6 @@
     update_cache: no
   with_items:
     - "deb [arch=amd64] {{ hlinux_server }}/{{ thirdparty_repo_loc }}/public/{{ latest_source_result.stat.lnk_source | basename }} {{ hlinux_distro }} main"
-  register: _thirdparty_repository_result
   when: thirdparty_apt_repo_present
 
 - name: osconfig | setup-apt | Setup apt repository priority preferences
@@ -68,9 +70,9 @@
 - name: osconfig | setup-apt | Add i386 arch for cmc support
   sudo: yes
   command: dpkg --add-architecture i386
-  when: deployer_apt_repo_present
+  when: deployer_cmc32_repo_present
 
 - name: osconfig | setup-apt | Update and upgrade hlinux apt repository
   sudo: yes
   command: apt-get update
-  when: deployer_apt_repo_present or thirdparty_apt_repo_present
+  when: deployer_apt_repo_present or thirdparty_apt_repo_present or deployer_cmc32_repo_present
