@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# (c) Copyright 2015-2016 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
 # (c) Copyright 2017 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -19,6 +19,7 @@
 import glob
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -393,6 +394,14 @@ def meminfo():
     return mem_info
 
 
+def package_info():
+    if os.path.exists('/usr/bin/dpkg'):
+        return dpkg()
+    elif os.path.exists('/usr/bin/zypper'):
+        return zypper()
+    else:
+        raise NotImplementedError('Could not determine package manager to use')
+
 def dpkg():
     packages = []
     try:
@@ -419,6 +428,46 @@ def dpkg():
     return packages
 
 
+def zypper():
+    package_versions = {}
+    package_version_lines = zypper_lines(['/usr/bin/zypper', 'search', '-i', '-s'])
+    for pieces in package_version_lines:
+        if len(pieces) == 6 and pieces[2] == 'package':
+            package_versions[pieces[1]] = (pieces[3], pieces[4])
+
+    packages = []
+    package_lines = zypper_lines(['/usr/bin/zypper', 'search', '-i'])
+    for pieces in package_lines:
+        if len(pieces) == 4 and pieces[3] == 'package':
+            package_version = package_versions.get(pieces[1], ('', ''))
+            package = {
+                'status': pieces[0],
+                'name': pieces[1],
+                'version': package_version[0],
+                'architecture': package_version[1],
+                'description': pieces[2]
+            }
+            packages.append(package)
+
+    return packages
+
+
+def zypper_lines(command):
+    output_lines = []
+    try:
+        output = subprocess.check_output(command)
+    except subprocess.CalledProcessError:
+        output = ''
+    parser = 'need_divider'
+    for line in output.split('\n'):
+        if parser == 'need_divider':
+            if line.startswith('---+'):
+                parser = 'consume_items'
+        else:
+            output_lines.append(re.split('\s*\|\s*', line))
+    return output_lines
+
+
 def main():
     ipaddr = None
     hostname = None
@@ -442,7 +491,7 @@ def main():
         dmidata = dmidecode()
         interfaces = ip()
         mem_info = meminfo()
-        packages = dpkg()
+        packages = package_info()
     except AssertionError as msg:
         failed_msg = msg
         ret['failed'] = True

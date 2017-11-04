@@ -1,5 +1,5 @@
 #
-# (c) Copyright 2015-2016 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
 # (c) Copyright 2017 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -32,14 +32,14 @@
 - name: osconfig | setup-hugepages | clean existing service
   become: yes
   file:
-    path: /lib/systemd/system/ardana-hugepages.service
+    path: "{{ systemd_script_dir }}/ardana-hugepages.service"
     state: absent
 
 - name: osconfig | setup-hugepages | template service systemd
   become: yes
   template:
     src: hugepages-service.j2
-    dest: /lib/systemd/system/ardana-hugepages.service
+    dest: "{{ systemd_script_dir }}/ardana-hugepages.service"
     owner: root
     group: root
     mode: 0644
