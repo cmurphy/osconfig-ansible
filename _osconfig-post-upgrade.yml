@@ -19,8 +19,25 @@
 ---
 - hosts: "{{ osconfig_resources | default('resources') }}"
   tasks:
-    - name: osconfig | _osconfig-post-upgrade | Re-enable the restarting of openvswitch after upgrade
+    - name: osconfig | _osconfig-post-upgrade | Debian - Enable openvswitch service
       service_restart:
         service: openvswitch-switch
         state: enabled
       become: yes
+      when: (ansible_os_family | lower) == 'debian'
+
+    - name: osconfig | _osconfig-post-upgrade | SUSE - Enable openvswitch service
+      become: yes
+      service:
+        name: openvswitch
+        state: started
+        enabled: yes
+      when: (ansible_os_family | lower) == 'suse'
+
+    - name: osconfig | _osconfig-post-upgrade | RedHat - Enable openvswitch service
+      become: yes
+      service:
+        name: openvswitch
+        state: started
+        enabled: yes
+      when: (ansible_os_family | lower) == 'redhat'
