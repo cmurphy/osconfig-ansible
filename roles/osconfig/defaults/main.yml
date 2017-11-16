@@ -1,5 +1,5 @@
 #
-# (c) Copyright 2015 Hewlett Packard Enterprise Development LP
+# (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
 # (c) Copyright 2017 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -23,3 +23,8 @@ total_huge_pages: "{{ numa_huge_pages | union(non_numa_huge_pages) }}"
 default_huge_page_size: "{{ host | item('my_memory_model.default_huge_page_size', default='') }}"
 processor_list: "{{ host | item('cpu_assignments.server.processor_list', default='') }}"
 crashkernel_settings: "crashkernel=384M-2G:64M,2G-:256M"
+
+osconfig_zypper_os_repo_name: SLES-OS
+osconfig_zypper_os_repo_loc: ardana/sles12/zypper/OS/
+osconfig_zypper_sdk_repo_name: SLES-SDK
+osconfig_zypper_sdk_repo_loc: ardana/sles12/zypper/SDK/
