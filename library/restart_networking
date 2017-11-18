@@ -302,16 +302,18 @@ def flush_interfaces(module, os_family):
         if interface == 'lo':
             continue
 
+        log.info('Flushing interface by bring down interface <%s>', interface)
         if os_family == 'Debian':
             module.run_command('timeout -s KILL 60 ifdown --force --ignore-errors %s'
                                % interface, check_rc=False)
-            # for now also do an 'ifconfig down' on the interface since
-            # just an ifdown isn't reliable
-            module.run_command('timeout -s KILL 60 ifconfig %s down' % interface,
-                               check_rc=False)
         else:
             module.run_command('timeout -s KILL 60 ifdown %s' % interface,
                                check_rc=False)
+
+        # for now also do an 'ifconfig down' on the interface since
+        # just an ifdown isn't reliable
+        module.run_command('timeout -s KILL 60 ifconfig %s down' % interface,
+                           check_rc=False)
 
         module.run_command('ip addr flush dev %s' % interface, check_rc=False)
 
