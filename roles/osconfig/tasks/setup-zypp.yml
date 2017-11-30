@@ -59,6 +59,8 @@
     _repositories:
       - alias: openstack-newton
         name: cloud-openstack-newton
+      - alias: openstack-pike
+        name: cloud-openstack-pike
       - alias: cloud8-openstack-devel
         name: SUSE-OpenStack-Cloud-8-devel-staging
       - alias: vertica
@@ -71,6 +73,8 @@
         name: sle-12-update-standard
       - alias: sle-12-sp2-update-products-manager31-standard
         name: sle-12-sp2-update-products-manager31-standard
+      - alias: opensuse-leap-network
+        name: opensuse-leap-network
 
 - name: osconfig | setup-zypp | Check if specified SLES extras repos exist
   delegate_to: localhost
