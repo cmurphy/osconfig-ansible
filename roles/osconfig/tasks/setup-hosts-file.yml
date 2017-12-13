@@ -15,7 +15,7 @@
 # under the License.
 #
 - name: osconfig | setup-hosts-file | Update /etc/hosts
-  sudo: yes
+  become: yes
   copy:
     src: generated_files/etc/hosts
     dest: /etc/hosts

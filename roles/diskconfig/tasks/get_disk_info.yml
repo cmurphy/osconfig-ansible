@@ -42,14 +42,14 @@
 - name: osconfig | diskconfig | get list of devices
   shell: cat /proc/partitions | grep "sd" | grep -v {{ wipe_disks_skip_partition }}$ | grep -v {{ wipe_disks_skip_partition }}[0-9] | awk '{ print $4 }'
   register: single_results
-  sudo: yes
+  become: yes
   when: wipe_disks_multipath == False
   ignore_errors: true
 
 - name: osconfig | diskconfig | get multipath list of devices
   shell: ls -1 /dev/mapper/ | grep "mpath"  | grep -v {{ wipe_disks_skip_partition }}$ | grep -v {{ wipe_disks_skip_partition }}[0-9]
   register: multi_results
-  sudo: yes
+  become: yes
   when: wipe_disks_multipath == True
   ignore_errors: true
 
@@ -104,14 +104,14 @@
 
 - name: osconfig | diskconfig | check partition tables for all devices found
   shell: fdisk /dev/{{ item }} -l
-  sudo: yes
+  become: yes
   with_items: "{{ devices }}"
   register: partitions_found
   when: item != "{{ wipe_disks_skip_partition }}" and (osconfig_ran.stat.exists == False or wipe_one_disk is defined) and devs_exist is defined and wipe_disks_multipath == False
 
 - name: osconfig | diskconfig | check partition tables for all devices found
   shell: fdisk /dev/mapper/{{ item }} -l
-  sudo: yes
+  become: yes
   with_items: "{{ devices }}"
   register: partitions_found
   when: item != "{{ wipe_disks_skip_partition }}" and (osconfig_ran.stat.exists == False or wipe_one_disk is defined) and devs_exist is defined and wipe_disks_multipath == True

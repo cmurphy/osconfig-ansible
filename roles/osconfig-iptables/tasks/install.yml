@@ -15,7 +15,7 @@
 # iptables install playbook
 
 - name: osconfig-iptables | install | Debian- Install the required packages
-  become: true
+  become: yes
   apt:
     name: "{{ item }}"
     install_recommends: no
@@ -27,7 +27,7 @@
     ansible_os_family == 'Debian'
 
 - name: osconfig-iptables | install | RedHat- Prevent potential sample iptables
-  become: true
+  become: yes
   file:
     path: "{{ item }}"
     state: touch
@@ -39,7 +39,7 @@
     ansible_os_family == 'RedHat'
 
 - name: osconfig-iptables | install | RedHat- Install the required packages
-  become: true
+  become: yes
   yum:
     name: "{{ item }}"
     state: latest
@@ -50,7 +50,7 @@
 
 
 - name: osconfig-iptables | install | SUSE- Install the required packages
-  become: true
+  become: yes
   zypper:
     name: "{{ item }}"
     state: latest
@@ -60,7 +60,7 @@
     ansible_os_family == 'Suse'
 
 - name: osconfig-iptables | install | Disable unsupported OS services
-  become: true
+  become: yes
   service:
     name: "{{ item }}"
     state: stopped
@@ -69,7 +69,7 @@
     "{{ disable_svcs|default([]) }}"
 
 - name: osconfig-iptables | install | Enable services
-  become: true
+  become: yes
   service:
     name: "{{ item }}"
     state: started

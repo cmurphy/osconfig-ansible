@@ -15,7 +15,7 @@
 # under the License.
 #
 - name: osconfig | set-hostname | Set native hostname
-  sudo: yes
+  become: yes
   hostname: name={{ host.vars.my_network_name }}
   register: set_hostname
 

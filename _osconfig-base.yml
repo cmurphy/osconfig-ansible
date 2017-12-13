@@ -21,7 +21,7 @@
 - include: _osconfig-setup-fcoe.yml
 
 - hosts: "{{ osconfig_resources | default('resources') }}:!NOV-ESX:!NEU-OVSVAPP"
-  sudo: yes
+  become: yes
   roles:
     - multipath
   tasks:
@@ -42,7 +42,7 @@
     register: skip_disk_config_result
 
 - hosts: "{{ osconfig_resources | default('resources') }}"
-  sudo: yes
+  become: yes
   roles:
     - diskconfig
   tasks:

@@ -29,7 +29,7 @@ import sys
 Probe hardware/software and gather various information
 
 Usage:
-    - sudo: yes
+    - become: true
       probe: ipaddr=<ipaddr> hostname=<hostname>
 
 The information is returned as 'ansible_facts' with the keys described

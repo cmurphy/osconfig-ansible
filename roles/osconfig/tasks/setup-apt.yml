@@ -16,13 +16,13 @@
 #
 ---
 - name: osconfig | setup-apt | Install prereqs
-  sudo: yes
+  become: yes
   apt: name={{ item }} state=latest
   with_items:
     - python-apt
 
 - name: osconfig | setup-apt | Remove /etc/apt/sources.list
-  sudo: yes
+  become: yes
   file:
     path: "/etc/apt/sources.list"
     state: absent
@@ -30,7 +30,7 @@
   when: deployer_apt_repo_present
 
 - name: osconfig | setup-apt | Add deployer apt repo
-  sudo: yes
+  become: yes
   apt_repository:
     repo: "deb [arch=amd64] {{ hlinux_url }} {{ hlinux_distro }} main contrib non-free"
     update_cache: no
@@ -44,7 +44,7 @@
   when: thirdparty_apt_repo_present
 
 - name: osconfig | setup-apt | Add thirdparty apt repo
-  sudo: yes
+  become: yes
   apt_repository:
     repo: "{{ item }}"
     update_cache: no
@@ -53,7 +53,7 @@
   when: thirdparty_apt_repo_present
 
 - name: osconfig | setup-apt | Setup apt repository priority preferences
-  sudo: yes
+  become: yes
   template:
     src: "priority.d.j2"
     dest: "/etc/apt/preferences.d/{{ hlinux_server | replace('http://', '') | replace('.', '_') | replace('-', '_') | replace('/', '_') }}"
@@ -61,6 +61,6 @@
   when: deployer_apt_repo_present
 
 - name: osconfig | setup-apt | Update and upgrade hlinux apt repository
-  sudo: yes
+  become: yes
   command: apt-get update
   when: deployer_apt_repo_present or thirdparty_apt_repo_present

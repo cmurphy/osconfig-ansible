@@ -17,7 +17,7 @@
 ---
 
 - name: network_interface | keepalived-reload | Reload keepalived on network restart
-  become: true
+  become: yes
   service:
     name: keepalived
     state: reloaded

@@ -19,7 +19,7 @@
 ---
 
 - name: network_interface | keepalived-force-restart | Force restart keepalived
-  become: true
+  become: yes
   service:
     name: keepalived
     state: restarted

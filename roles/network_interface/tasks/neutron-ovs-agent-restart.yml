@@ -17,7 +17,7 @@
 ---
 
 - name: network_interface | neutron-ovs-agent-restart | Restart neutron-openvswitch-agent on network restart
-  become: true
+  become: yes
   service:
     name: neutron-openvswitch-agent
     state: restarted

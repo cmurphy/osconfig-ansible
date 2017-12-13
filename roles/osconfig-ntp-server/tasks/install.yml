@@ -18,12 +18,12 @@
 ---
 
 - name: osconfig-ntp-server | install | Create ntp configuration file
-  sudo: yes
+  become: yes
   template: src=ntp.conf.j2  dest=/etc/ntp.conf
   register: ardana_notify_osconfig_ntp_restart_required
 
 - name: osconfig-ntp-server | install | Debian - Install required packages
-  sudo: yes
+  become: yes
   apt:
     name: "{{ item }}"
     state: latest
@@ -35,7 +35,7 @@
   when: ansible_os_family == 'Debian'
 
 - name: osconfig-ntp-server | install | SUSE - Install required packages
-  sudo: yes
+  become: yes
   zypper:
     name: "{{ item }}"
     state: latest

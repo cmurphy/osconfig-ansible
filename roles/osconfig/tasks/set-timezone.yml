@@ -16,32 +16,32 @@
 #
 - name: osconfig | set-timezone | Update /etc/timezone
   template: src=timezone.j2 dest=/etc/timezone mode=0644
-  sudo: yes
+  become: yes
   register: tz
 
 - name: osconfig | set-timezone | Update tzdata Debian
   command: dpkg-reconfigure -fnoninteractive tzdata
-  sudo: yes
+  become: yes
   when: tz.changed and ansible_os_family == 'Debian'
 
 - name: osconfig | set-timezone | Read tzdata RedHat
   shell: cat /etc/timezone | grep -v \#
-  sudo: yes
+  become: yes
   register: tzlocal
   when: ansible_os_family == 'RedHat'
 
 - name: osconfig | set-timezone | Update tzdata RedHat
   command: timedatectl set-timezone "{{tzlocal.stdout}}"
-  sudo: yes
+  become: yes
   when: ansible_os_family == 'RedHat'
 
 - name: osconfig | set-timezone | Read tzdata SUSE
   shell: cat /etc/timezone | grep -v \#
-  sudo: yes
+  become: yes
   register: tzlocal
   when: ansible_os_family == 'Suse'
 
 - name: osconfig | set-timezone | Update tzdata SUSE
   command: timedatectl set-timezone "{{tzlocal.stdout}}"
-  sudo: yes
+  become: yes
   when: ansible_os_family == 'Suse'

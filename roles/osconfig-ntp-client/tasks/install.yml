@@ -30,12 +30,12 @@
                                   map(attribute='stdout') | list | unique }}"
 
 - name: osconfig-ntp-client | install | Create ntp configuration file
-  sudo: yes
+  become: yes
   template: src=ntp.conf.j2  dest=/etc/ntp.conf
   register: ardana_notify_osconfig_ntp_restart_required
 
 - name: osconfig-ntp-client | install | Install required packages in Debian derivatives
-  sudo: yes
+  become: yes
   apt:
     name: "{{ item }}"
     state: latest
@@ -47,7 +47,7 @@
   when: ansible_os_family == 'Debian'
 
 - name: osconfig-ntp-client | install | Install required packages in Redhat derivatives
-  sudo: yes
+  become: yes
   yum:
     name: "{{ item }}"
     state: latest
@@ -57,7 +57,7 @@
   when: ansible_os_family == 'RedHat'
 
 - name: osconfig-ntp-client | install | Install required packages in SUSE derivatives
-  sudo: yes
+  become: yes
   zypper:
     name: "{{ item }}"
     state: latest

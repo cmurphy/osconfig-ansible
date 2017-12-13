@@ -19,7 +19,7 @@
 - include_vars: "../../osconfig-common/vars/{{ ansible_os_family | lower }}.yml"
 
 - name: osconfig-ntp-server | start | Update system time to ntp server time
-  sudo: yes
+  become: yes
   command: /usr/sbin/ntpdate -b {{ ntp_servers[0] }}
   when: not (ardana_notify_osconfig_ntp_restart_required is not defined)
         and ardana_notify_osconfig_ntp_restart_required.changed and
@@ -27,14 +27,14 @@
   ignore_errors: true
 
 - name: osconfig-ntp-server | start | Update the hardware clock with system time
-  sudo: yes
+  become: yes
   command: /sbin/hwclock --systohc
   when: not (ardana_notify_osconfig_ntp_restart_required is not defined)
         and ardana_notify_osconfig_ntp_restart_required.changed and
         ntp_restarted is not defined
 
 - name: osconfig-ntp-server | start | Restart ntp service
-  sudo: yes
+  become: yes
   service:
     name: "{{ ntp_service_name }}"
     state: restarted
@@ -44,14 +44,14 @@
   register: ntp_restarted
 
 - name: osconfig-ntp-server | start | Start and enable ntp service
-  sudo: yes
+  become: yes
   service:
     name: "{{ ntp_service_name }}"
     state: running
     enabled: yes
 
 - name: osconfig-ntp-server | start | Verify ntp service is responding
-  sudo: yes
+  become: yes
   command: /usr/sbin/ntpdate -q {{ ansible_ssh_host | default('localhost') }}
   register: _osconfig_ntp_server_verify_responding
   until: _osconfig_ntp_server_verify_responding | success

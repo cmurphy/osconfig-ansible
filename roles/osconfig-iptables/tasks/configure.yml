@@ -16,7 +16,7 @@
 
 
 - name: osconfig-iptables | configure | apply firewall rules
-  become: true
+  become: yes
   iptables_update:
     enable: "{{ firewall.enable }}"
     logging: "{{ firewall.settings.logging|default(true) }}"

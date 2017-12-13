@@ -16,7 +16,7 @@
 #
 ---
 - hosts: "{{ osconfig_resources | default('resources') }}:!NOV-ESX:!NEU-OVSVAPP"
-  sudo: yes
+  become: yes
   roles:
     - fcoe
   tasks:

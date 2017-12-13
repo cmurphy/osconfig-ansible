@@ -16,8 +16,8 @@
 
 - name: osconfig | marker | create /etc/ardana directory
   file: path=/etc/openstack state=directory
-  sudo: yes
+  become: yes
 
 - name: osconfig | marker | create marker
   file: path=/etc/openstack/osconfig-ran state=touch
-  sudo: yes
+  become: yes

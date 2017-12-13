@@ -17,12 +17,12 @@
 ---
 
 - name: osconfig-probe | configure | Probe hardware configuration
-  sudo: yes
+  become: yes
   probe: ipaddr={{ ansible_default_ipv4.address }}
                   hostname={{ host.vars.my_network_name }}
 
 - name: osconfig-probe | configure | Create /var/cache/ for probe
-  sudo: yes
+  become: yes
   file: >
     path={{ probe_var_cache }}
     owner=root
@@ -31,7 +31,7 @@
     state=directory
 
 - name: osconfig-probe | configure | Update /var/cache yml files
-  sudo: yes
+  become: yes
   template:
     src: "{{ item }}.j2"
     dest: "{{ probe_var_cache }}/{{ item }}.yml"

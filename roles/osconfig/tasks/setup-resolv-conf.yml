@@ -15,7 +15,7 @@
 # under the License.
 #
 - name: osconfig | setup-resolv-conf | Update /etc/resolv.conf
-  sudo: yes
+  become: yes
   template:
     src: resolv.conf.j2
     dest: /etc/resolv.conf

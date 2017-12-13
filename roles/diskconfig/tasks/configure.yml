@@ -192,7 +192,7 @@
   delegate_to: localhost
 
 - name: osconfig | disk config | Backup log dir before mounting log partition
-  sudo: yes
+  become: yes
   command: cp -dpr /var/log {{ ansible_env['HOME'] }}
   when: log_already_mounted is defined
   run_once: true
@@ -233,14 +233,14 @@
   when: ansible_os_family == 'RedHat'
 
 - name: osconfig | disk config | Restore log dir after mounting log partition
-  sudo: yes
+  become: yes
   command: cp -dpr {{ ansible_env['HOME'] }}/log /var
   when: log_already_mounted is defined
   run_once: true
   delegate_to: localhost
 
 - name: osconfig | disk config | Remove log dir backup
-  sudo: yes
+  become: yes
   file: path={{ ansible_env['HOME'] }}/log state=absent
   when: log_already_mounted is defined
   run_once: true
