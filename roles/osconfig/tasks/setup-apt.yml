@@ -36,13 +36,6 @@
     update_cache: no
   when: deployer_apt_repo_present
 
-- name: osconfig | setup-apt | Add deployer cmc32 repo
-  sudo: yes
-  apt_repository:
-    repo: "deb [arch=i386] {{ hlinux_server }}/ardana/cmc32 {{ hlinux_distro }} main"
-    update_cache: no
-  when: deployer_cmc32_repo_present
-
 - name: osconfig | setup-apt | Get symlink source
   delegate_to: localhost
   stat:
@@ -67,12 +60,7 @@
   register: _apt_repository_priority_result
   when: deployer_apt_repo_present
 
-- name: osconfig | setup-apt | Add i386 arch for cmc support
-  sudo: yes
-  command: dpkg --add-architecture i386
-  when: deployer_cmc32_repo_present
-
 - name: osconfig | setup-apt | Update and upgrade hlinux apt repository
   sudo: yes
   command: apt-get update
-  when: deployer_apt_repo_present or thirdparty_apt_repo_present or deployer_cmc32_repo_present
+  when: deployer_apt_repo_present or thirdparty_apt_repo_present
