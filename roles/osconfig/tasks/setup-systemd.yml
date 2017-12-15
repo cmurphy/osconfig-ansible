@@ -1,0 +1,29 @@
+#
+# (c) Copyright 2017 SUSE LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+---
+
+- name: osconfig | setup-systemd | tweak systemd parameters
+  become: yes
+  lineinfile:
+    dest: /etc/systemd/system.conf
+    regexp: '^#?DefaultTasksMax=.+'
+    line: 'DefaultTasksMax=infinity'
+  register: osconfig_setup_systemd_result
+  when: ansible_os_family == 'Suse'
+
+- name: osconfig | setup-systemd | reload systemd configuration
+  become: yes
+  command: systemctl daemon-reload
+  when: osconfig_setup_systemd_result is defined and
+    osconfig_setup_systemd_result.changed
