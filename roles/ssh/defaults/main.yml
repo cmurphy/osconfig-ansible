@@ -17,7 +17,7 @@
 
 ssh_sshd_config:
   - regexp: "^#?PermitRootLogin "
-    line: "PermitRootLogin no"
+    line: "PermitRootLogin without-password"
   - regexp: "^#?\\s*MaxSessions\\s+"
     line: "MaxSessions 100"
   - regexp: "^#?\\s*MaxStartups\\s+"
