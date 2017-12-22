@@ -63,8 +63,6 @@
         name: cloud-openstack-pike
       - alias: cloud8-openstack-devel
         name: SUSE-OpenStack-Cloud-8-devel-staging
-      - alias: vertica
-        name: vertica
       - alias: powerdns
         name: powerdns
       - alias: sle-12-ga-standard
