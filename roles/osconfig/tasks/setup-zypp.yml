@@ -88,7 +88,7 @@
     _repo_exists: >
       {%- set _map_els = dict() -%}
       {%- for r in _sles_extras_repos_stat_result.results -%}
-      {%-   do _map_els.update({r.item.name: r.stat.isdir is defined and r.stat.isdir}) -%}
+      {%-   set _ = _map_els.update({r.item.name: r.stat.isdir is defined and r.stat.isdir}) -%}
       {%- endfor -%}
       {{ _map_els }}
 
