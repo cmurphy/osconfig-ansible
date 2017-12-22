@@ -86,11 +86,11 @@
 - name: osconfig | setup-zypp | Generate SLES extras repo exists map
   set_fact:
     _repo_exists: >
-      {%- set _map_els = [] -%}
+      {%- set _map_els = dict() -%}
       {%- for r in _sles_extras_repos_stat_result.results -%}
-      {%-    set _ = _map_els.append((r.item.name, r.stat.isdir is defined and r.stat.isdir)) -%}
+      {%-   do _map_els.update({r.item.name: r.stat.isdir is defined and r.stat.isdir}) -%}
       {%- endfor -%}
-      {{ dict(_map_els) }}
+      {{ _map_els }}
 
 - name: osconfig | setup-zypp | Configure the extras zypp repo on SLES nodes
   become: yes
