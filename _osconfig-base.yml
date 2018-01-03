@@ -80,6 +80,7 @@
     - include: roles/osconfig/tasks/set-timezone.yml
     - include: roles/osconfig/tasks/install-ansible-prereqs.yml
     - include: roles/package-consumer/tasks/install.yml
+      when: deployer_media_legacy_layout|bool
     - include: roles/package-consumer/tasks/configure.yml
     - include: roles/osconfig/tasks/copy-ardana-version-file.yml
     - include: roles/osconfig/tasks/setup-systemd.yml
