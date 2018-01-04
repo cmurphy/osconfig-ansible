@@ -144,10 +144,11 @@
     pkg: kexec-tools
   when: ansible_os_family == 'RedHat'
 
-- name: osconfig | setup-kernel-parameters | zypper install kexec-tools
+- name: osconfig | setup-kernel-parameters | zypper install kdump
   become: yes
   zypper:
-    pkg: kexec-tools
+    pkg:
+      - kdump
   when: ansible_os_family == 'Suse'
 
 - name: osconfig | setup-kernel-parameters | configure kdump settings
@@ -175,9 +176,16 @@
   command: grub2-mkconfig -o /boot/grub2/grub.cfg
   when: grub_mod.changed and ansible_os_family in ['RedHat', 'Suse']
 
-- name: osconfig | setup-kernel-parameters | restart kdump RedHat/Suse
+- name: osconfig | setup-kernel-parameters | enable kdump on boot (Suse)
+  become: yes
+  service:
+    name: kdump
+    enabled: yes
+  when: ansible_os_family == 'Suse'
+
+- name: osconfig | setup-kernel-parameters | restart kdump RedHat
   become: yes
   service:
     name: kdump
     state: restarted
-  when: ansible_os_family in ['RedHat', 'Suse']
+  when: ansible_os_family == 'RedHat'
