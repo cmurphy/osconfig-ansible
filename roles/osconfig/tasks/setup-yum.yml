@@ -1,6 +1,6 @@
 #
 # (c) Copyright 2016 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -33,6 +33,13 @@
   template:
     src: "openstack_yum.repo.j2"
     dest: "/etc/yum.repos.d/openstack_yum.repo"
+
+- name: osconfig | setup-yum | Configure the optional yum repo on RHEL nodes
+  become: yes
+  template:
+    src: "optional_yum.repo.j2"
+    dest: "/etc/yum.repos.d/optional_yum.repo"
+  when: rhel_optional_repo_enabled | default(False, true) | bool
 
 - name: osconfig | setup-yum | Get symlink source
   delegate_to: localhost
