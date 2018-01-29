@@ -286,7 +286,7 @@ def process_rules(module, address, rules, prefix, family=None):
         args = ['-A', chain_name]
         args += source_arg + dest_arg + protocol_arg + port_arg
         args += ['-m', 'comment', '--comment',
-                 '"%s"' % rule['chain'][:MAX_COMMENT_LEN]]
+                 '"%s"' % ('%s (%s)' % (rule['chain'], rule['component']))[:MAX_COMMENT_LEN]]
 
         if rtype.startswith('allow'):
             args += ['-j', 'ACCEPT']
