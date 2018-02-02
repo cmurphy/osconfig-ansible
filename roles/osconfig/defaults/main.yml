@@ -1,6 +1,6 @@
 #
 # (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -28,3 +28,5 @@ osconfig_zypper_os_repo_name: SLES-OS
 osconfig_zypper_os_repo_loc: ardana/sles12/zypper/OS/
 osconfig_zypper_sdk_repo_name: SLES-SDK
 osconfig_zypper_sdk_repo_loc: ardana/sles12/zypper/SDK/
+
+osconfig_yum_optional_repo_loc: ardana/rhel7/yum/optional/

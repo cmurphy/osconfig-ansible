@@ -34,12 +34,18 @@
     src: "openstack_yum.repo.j2"
     dest: "/etc/yum.repos.d/openstack_yum.repo"
 
+- name: osconfig | setup-yum | Check optional yum repo existence on deployer
+  delegate_to: localhost
+  stat:
+    path: "{{ PACKAGE_CONSTANTS.REPO_DIR }}/{{ osconfig_yum_optional_repo_loc }}"
+  register: _rhel_optional_repo_stat_result
+
 - name: osconfig | setup-yum | Configure the optional yum repo on RHEL nodes
   become: yes
   template:
     src: "optional_yum.repo.j2"
     dest: "/etc/yum.repos.d/optional_yum.repo"
-  when: rhel_optional_repo_enabled | default(False, true) | bool
+  when: _rhel_optional_repo_stat_result.stat.exists
 
 - name: osconfig | setup-yum | Get symlink source
   delegate_to: localhost
