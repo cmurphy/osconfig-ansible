@@ -16,6 +16,6 @@
 #}
 [optionalrepo]
 name=Ardana Optional Repository
-baseurl=http://{{ ansible_env.SSH_CLIENT.split()[0] }}:{{ hlinux_server_port }}/{{ yum_optional_loc }}
+baseurl=http://{{ ansible_env.SSH_CLIENT.split()[0] }}:{{ deployer_server_port }}/{{ yum_optional_loc }}
 enabled=1
 gpgcheck=0

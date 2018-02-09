@@ -18,8 +18,8 @@
 
 # TODO(fergal): remove once ardana-ansible updated to specify zypp_server
 - set_fact:
-    zypp_server: "{{ hlinux_server }}"
-  when: zypp_server is not defined and hlinux_server is defined
+    zypp_server: "{{ deployer_server }}"
+  when: zypp_server is not defined and deployer_server is defined
 
 - name: osconfig | setup-zypp | Check SLES OS zypper repo location
   delegate_to: localhost
