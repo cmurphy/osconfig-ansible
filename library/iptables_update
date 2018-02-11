@@ -4,7 +4,7 @@
 # Copyright 2011 OpenStack Foundation.
 #
 # (c) Copyright 2015-2016 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -286,7 +286,7 @@ def process_rules(module, address, rules, prefix, family=None):
         args = ['-A', chain_name]
         args += source_arg + dest_arg + protocol_arg + port_arg
         args += ['-m', 'comment', '--comment',
-                 '"%s"' % ('%s (%s)' % (rule['chain'], rule['component']))[:MAX_COMMENT_LEN]]
+                 '"%s"' % rule['chain'][:MAX_COMMENT_LEN]]
 
         if rtype.startswith('allow'):
             args += ['-j', 'ACCEPT']
