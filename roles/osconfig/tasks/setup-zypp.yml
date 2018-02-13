@@ -27,6 +27,13 @@
     path: "{{ PACKAGE_CONSTANTS.REPO_DIR }}/{{ osconfig_zypper_os_repo_loc }}/suse"
   register: _sles_os_repo_stat_result
 
+- name: osconfig | setup-zypp | Remove any old OS zypper repo
+  become: yes
+  zypper_repository:
+    name: "{{ osconfig_zypper_os_repo_name }}"
+    state: absent
+  when: _sles_os_repo_stat_result.stat.exists
+
 - name: osconfig | setup-zypp | Configure the OS zypper repo
   become: yes
   zypper_repository:
@@ -42,6 +49,13 @@
     path: "{{ PACKAGE_CONSTANTS.REPO_DIR }}/{{ osconfig_zypper_sdk_repo_loc }}/suse"
   register: _sles_sdk_repo_stat_result
 
+- name: osconfig | setup-zypp | Remove any old SDK zypper repo
+  become: yes
+  zypper_repository:
+    name: "{{ osconfig_zypper_sdk_repo_name }}"
+    state: absent
+  when: _sles_sdk_repo_stat_result.stat.exists
+
 - name: osconfig | setup-zypp | Configure the SDK zypper repo
   become: yes
   zypper_repository:
@@ -50,14 +64,6 @@
     repo: "{{ zypp_server }}/{{ osconfig_zypper_sdk_repo_loc }}"
     disable_gpg_check: yes
   when: _sles_sdk_repo_stat_result.stat.exists
-
-- name: osconfig | setup-zypp | Install required packages
-  become: yes
-  zypper:
-    name: "{{ item }}"
-    state: latest
-  with_items:
-    - python-xml
 
 - name: osconfig | setup-zypp | Set extras repository list
   set_fact:
@@ -87,6 +93,14 @@
       {%- endfor -%}
       {{ _map_els }}
 
+- name: osconfig | setup-zypp | Remove any old extras zypp repo on SLES nodes
+  become: yes
+  zypper_repository:
+    name: "{{ item.alias }}"
+    state: absent
+  with_items: _repositories
+  when: _repo_exists[item.name]
+
 - name: osconfig | setup-zypp | Configure the extras zypp repo on SLES nodes
   become: yes
   zypper_repository:
@@ -104,6 +118,13 @@
   register: latest_source_result
   when: thirdparty_zypp_repo_present
 
+- name: osconfig | setup-zypp | Remove any old thirdparty zypp repo on SLES nodes
+  become: yes
+  zypper_repository:
+    name: tprepo
+    state: absent
+  when: thirdparty_zypp_repo_present
+
 - name: osconfig | setup-zypp | Configure the thirdparty zypp repo on SLES nodes
   become: yes
   zypper_repository:
@@ -112,6 +133,14 @@
     repo: "{{ zypp_server }}/{{ zypp_thirdparty_loc }}/{{ latest_source_result.stat.lnk_source | basename }}"
     disable_gpg_check: yes
   when: thirdparty_zypp_repo_present
+
+- name: osconfig | setup-zypp | Install required packages
+  become: yes
+  zypper:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - python-xml
 
 - name: osconfig | setup-zypp | Generate list of zypper repos to refresh
   set_fact:
