@@ -73,7 +73,11 @@
       - alias: openstack-pike
         name: cloud-openstack-pike
       - alias: cloud8-openstack-devel
+        name: SUSE-OpenStack-Cloud-8-devel
+      - alias: cloud8-openstack-devel-staging
         name: SUSE-OpenStack-Cloud-8-devel-staging
+      - alias: sles12sp3-network
+        name: SLE_12_SP3-network
       - alias: powerdns
         name: powerdns
 
