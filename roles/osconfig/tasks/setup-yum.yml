@@ -33,6 +33,7 @@
   template:
     src: "openstack_yum.repo.j2"
     dest: "/etc/yum.repos.d/openstack_yum.repo"
+  when: deployer_media_legacy_layout|bool
 
 - name: osconfig | setup-yum | Check optional yum repo existence on deployer
   delegate_to: localhost
