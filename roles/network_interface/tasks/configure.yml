@@ -77,44 +77,6 @@
   with_items: openvswitch_packages
   when: ovs_redhat_check
 
-- name: network_interface | configure | RedHat- check for ovs-vswitchd
-  stat:
-    path: "{{ switchd.file_path }}"
-    get_checksum: True
-    follow: True
-  register: ovsd_orig_stat_result
-  when:
-    ansible_os_family == 'RedHat'
-
-- name: network_interface | configure | RedHat- ovs-vswitchd check patched
-  command: /bin/true
-  register: ovsd_needs_cve_result
-  when:
-    ansible_os_family == 'RedHat' and
-    ovsd_orig_stat_result.stat.exists and
-    ovsd_orig_stat_result.stat.checksum == "{{ switchd.orig_checksum }}"
-
-- name: network_interface | configure | RedHat- copy patched ovs-vswitchd
-  become: yes
-  copy:
-    src: "../files/{{ switchd.cve_name }}"
-    dest: "{{ switchd.cve_path }}"
-    owner: root
-    group: root
-    mode: 0755
-  when:
-    ovsd_needs_cve_result.changed
-
-- name: network_interface | configure | RedHat- create ovs-vswitchd symlink
-  become: yes
-  file:
-    src: "{{ switchd.cve_path }}"
-    dest: "{{ switchd.file_path }}"
-    state: link
-    force: yes
-  when:
-    ovsd_needs_cve_result.changed
-
 - name: network_interface | configure | RedHat- Start openvswitch
   become: yes
   service:
