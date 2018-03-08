@@ -1,5 +1,5 @@
 # (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -22,19 +22,6 @@
 - name: network_interface | configure | Simplify registered values
   set_fact:
     shadow_dir: "{{ shadow_dir.stdout }}"
-
-- name: network_interface | configure | Fact for Debian OvS install
-  set_fact:
-    ovs_debian_check: true
-  when:
-    ('FND-OVS' in group.services or ovs_bridge_interfaces != []) and
-    ansible_os_family == 'Debian'
-
-- name: network_interface | configure | Ensure ovs_debian_check exists
-  set_fact:
-    ovs_debian_check: false
-  when:
-    ovs_debian_check is not defined
 
 - name: network_interface | configure | Fact for RedHat OvS install
   set_fact:
@@ -81,128 +68,6 @@
     switchd: { orig_checksum: '' }
   when:
     switchd is not defined
-
-- name: network_interface | configure | Debian- Install openvswitch packages
-  become: yes
-  apt:
-    name: "{{ item }}"
-    install_recommends: no
-    state: latest
-    force: yes
-  with_items: openvswitch_packages
-  when:
-    ovs_debian_check and
-    not compute_with_dpdk_check
-
-- name: network_interface | configure | Debian- Install alternatives for openvswitch
-  become: yes
-  alternatives:
-    name: ovs-vswitchd
-    path: /usr/lib/openvswitch-switch/ovs-vswitchd
-  when:
-    ovs_debian_check and
-    not compute_with_dpdk_check
-
-- name: network_interface | configure | Debian- Install dpdk openvswitch packages
-  become: yes
-  apt:
-    name: "{{ item }}"
-    install_recommends: no
-    state: latest
-    force: yes
-  with_items: openvswitch_packages_dpdk
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check
-
-- name: network_interface | configure | Debian- Install alternatives for openvswitch dpdk
-  become: yes
-  alternatives:
-    name=ovs-vswitchd
-    path=/usr/lib/openvswitch-switch-dpdk/ovs-vswitchd-dpdk
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check
-
-- name: network_interface | configure | Debian- Install extra dpdk packages
-  become: yes
-  apt:
-    name: "{{ item }}"
-    install_recommends: no
-    state: latest
-    force: yes
-  with_items: dpdk_extra.packages
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check and
-    dpdk_extra.packages | length > 0
-
-- name: network_interface | configure | Debian- Get libvirt_qemu_user from Nova
-  include_vars: ../../NOV-CMP-KVM/vars/debian.yml
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check
-
-- name: network_interface | configure | Debian- Create openvswitch default options
-  become: yes
-  template:
-    src: openvswitch_switch.j2
-    dest: /etc/default/openvswitch-switch
-    owner: root
-    group: root
-    mode: 0644
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check
-
-- name: network_interface | configure | Debian- Create dpdk default nic bindings
-  become: yes
-  template:
-    src: dpdk_bindings.j2
-    dest: /etc/dpdk/interfaces
-    owner: root
-    group: root
-    mode: 0644
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check
-
-- name: network_interface | configure | Debian- Manage dpdk openvswitch rxqs
-  become: yes
-  command: "ovs-vsctl set Open_vSwitch . other_config:n-dpdk-rxqs={{ dpdk_rx_queues }}"
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check
-
-- name: network_interface | configure | Debian- Manage dpdk openvswitch pmd mask
-  become: yes
-  command: "ovs-vsctl set Open_vSwitch . other_config:pmd-cpu-mask={{ dpdk_pmd_mask }}"
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check
-
-- name: network_interface | configure | Debian- Load the dpdk drivers
-  become: yes
-  command: modprobe {{ item }}
-  with_items: dpdk_drivers
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check and
-    dpdk_drivers != ' '
-
-- name: network_interface | configure | Debian- Persist the extra dpdk drivers
-  become: yes
-  template:
-    src: dpdk_modules_load.conf.j2
-    dest: "{{ dpdk_kernel_module_file }}"
-    owner: root
-    group: root
-    mode: 0640
-  with_items: dpdk_extra.modules
-  when:
-    ovs_debian_check and
-    compute_with_dpdk_check and
-    dpdk_extra.modules | length > 0
 
 - name: network_interface | configure | RedHat- Install openvswitch packages
   become: yes
@@ -837,7 +702,7 @@
     interfaces_path: "{{ net_path }}"
     shadow_path: "{{ shadow_dir }}"
     force_restart: "{{ udev_config_result.changed or ardana_udev_run_result.changed or network_pci_restart_required|default('false') }}"
-    restart_ovs: "{{ ovs_debian_check or ovs_redhat_check }}"
+    restart_ovs: "{{ ovs_redhat_check }}"
     management_pattern: "{{ interface_file_marker }}"
     routing_tables: "{{ routing_tables }}"
     routing_table_file: "{{ routing_table_file }}"
