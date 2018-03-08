@@ -43,28 +43,6 @@
     disable_gpg_check: yes
   when: _sles_os_repo_stat_result.stat.exists
 
-- name: osconfig | setup-zypp | Check SLES SDK zypper repo location
-  delegate_to: localhost
-  stat:
-    path: "{{ PACKAGE_CONSTANTS.REPO_DIR }}/{{ osconfig_zypper_sdk_repo_loc }}/suse"
-  register: _sles_sdk_repo_stat_result
-
-- name: osconfig | setup-zypp | Remove any old SDK zypper repo
-  become: yes
-  zypper_repository:
-    name: "{{ osconfig_zypper_sdk_repo_name }}"
-    state: absent
-  when: _sles_sdk_repo_stat_result.stat.exists
-
-- name: osconfig | setup-zypp | Configure the SDK zypper repo
-  become: yes
-  zypper_repository:
-    name: "{{ osconfig_zypper_sdk_repo_name }}"
-    description: "{{ osconfig_zypper_sdk_repo_name }}"
-    repo: "{{ zypp_server }}/{{ osconfig_zypper_sdk_repo_loc }}"
-    disable_gpg_check: yes
-  when: _sles_sdk_repo_stat_result.stat.exists
-
 - name: osconfig | setup-zypp | Set extras repository list
   set_fact:
     _repositories:
@@ -152,9 +130,6 @@
       {%- set _rr_list = [] -%}
       {%- if _sles_os_repo_stat_result.stat.exists -%}
       {%-   set _ = _rr_list.append(osconfig_zypper_os_repo_name) -%}
-      {%- endif -%}
-      {%- if _sles_sdk_repo_stat_result.stat.exists -%}
-      {%-   set _ = _rr_list.append(osconfig_zypper_sdk_repo_name) -%}
       {%- endif -%}
       {%- for r in _repositories -%}
       {%-   set _ = _rr_list.append(r.name) -%}
