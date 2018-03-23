@@ -21,6 +21,14 @@
     zypp_server: "{{ deployer_server }}"
   when: zypp_server is not defined and deployer_server is defined
 
+- set_fact:
+    zypp_server_http: "{{ zypp_server }}"
+  when: zypp_server_http is not defined
+
+##########################
+# Legacy media mode only #
+##########################
+
 - name: osconfig | setup-zypp | Check SLES OS zypper repo location
   delegate_to: localhost
   stat:
@@ -43,9 +51,46 @@
     disable_gpg_check: yes
   when: _sles_os_repo_stat_result.stat.exists
 
-- name: osconfig | setup-zypp | Set extras repository list
+##############################
+# Set up required SUSE Media #
+##############################
+
+- name: osconfig | setup-zypp | Add SLES and Cloud repos
   set_fact:
     _repositories:
+      - Cloud
+      - SLES12-SP3-Pool
+      - SLES12-SP3-Updates
+      - SUSE-OpenStack-Cloud-8-Pool
+      - SUSE-OpenStack-Cloud-8-Updates
+
+- set_fact:
+    suse_release: suse-{{ansible_distribution_version}}
+
+- name: osconfig | setup-zypp | Configure SLES and Cloud repos on nodes
+  become: yes
+  zypper_repository:
+    name: "{{ item }}"
+    description: "{{ item }}"
+    repo: "{{ zypp_server_http }}/SUSE-12-3/{{ ansible_architecture }}/repos/{{ item }}"
+  with_items: _repositories
+  # If the repositories are not available on the deployer, that is not
+  # necessarily critical yet. The next tasks will check whether the release
+  # package is available. If it is, then at least the Cloud media made it onto
+  # the node somehow. In the upgrade stage, we will need to do more strict
+  # verification that the SLES and Cloud Pool and Updates repositories have
+  # made it onto the node.
+  ignore_errors: True
+
+- include: check-product-status.yml
+
+############################
+# Set up SLES extras repos #
+############################
+
+- name: osconfig | setup-zypp | Set extras repository list
+  set_fact:
+    _extras_repositories:
       - alias: openstack-newton
         name: cloud-openstack-newton
       - alias: openstack-pike
@@ -64,11 +109,11 @@
   stat:
     path: "{{ zypper_extras_dir }}/{{ item.name }}"
   register: _sles_extras_repos_stat_result
-  with_items: _repositories
+  with_items: _extras_repositories
 
-- name: osconfig | setup-zypp | Generate SLES extras repo exists map
+- name: osconfig | setup-zypp | Generate SLES repos exists map
   set_fact:
-    _repo_exists: >
+    _extras_repo_exists: >
       {%- set _map_els = dict() -%}
       {%- for r in _sles_extras_repos_stat_result.results -%}
       {%-   set _ = _map_els.update({r.item.name: r.stat.isdir is defined and r.stat.isdir}) -%}
@@ -80,8 +125,8 @@
   zypper_repository:
     name: "{{ item.alias }}"
     state: absent
-  with_items: _repositories
-  when: _repo_exists[item.name]
+  with_items: _extras_repositories
+  when: _extras_repo_exists[item.name]
 
 - name: osconfig | setup-zypp | Configure the extras zypp repo on SLES nodes
   become: yes
@@ -90,10 +135,14 @@
     description: "{{ item.name }}"
     repo: "{{ zypp_server }}/{{ zypper_extras_loc }}/{{ item.name }}"
     disable_gpg_check: yes
-  with_items: _repositories
-  when: _repo_exists[item.name]
+  with_items: _extras_repositories
+  when: _extras_repo_exists[item.name]
 
-- name: osconfig | setup-zypp | Get symlink source
+############################
+# Set up third party repos #
+############################
+
+- name: osconfig | setup-zypp | Get thirdparty symlink source
   delegate_to: localhost
   stat:
     path: "{{ zypp_thirdparty_dir }}/latest"
@@ -116,13 +165,9 @@
     disable_gpg_check: yes
   when: thirdparty_zypp_repo_present
 
-- name: osconfig | setup-zypp | Install required packages
-  become: yes
-  zypper:
-    name: "{{ item }}"
-    state: latest
-  with_items:
-    - python-xml
+#####################
+# Refresh all repos #
+#####################
 
 - name: osconfig | setup-zypp | Generate list of zypper repos to refresh
   set_fact:
@@ -131,8 +176,11 @@
       {%- if _sles_os_repo_stat_result.stat.exists -%}
       {%-   set _ = _rr_list.append(osconfig_zypper_os_repo_name) -%}
       {%- endif -%}
-      {%- for r in _repositories -%}
+      {%- for r in _extras_repositories -%}
       {%-   set _ = _rr_list.append(r.name) -%}
+      {%- endfor -%}
+      {%- for r in _repositories -%}
+      {%-   set _ = _rr_list.append(r) -%}
       {%- endfor -%}
       {%- if thirdparty_zypp_repo_present -%}
       {%-   set _ = _rr_list.append("tprepo") -%}
