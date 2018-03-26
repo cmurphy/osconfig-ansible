@@ -103,6 +103,24 @@
     ovs_suse_check and
     compute_with_dpdk_check
 
+- name: network_interface | configure | SUSE- Get libvirt_qemu_user from Nova
+  include_vars: ../../NOV-CMP-KVM/vars/suse.yml
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
+
+- name: network_interface | configure | SUSE- Create openvswitch default options
+  become: yes
+  template:
+    src: openvswitch.j2
+    dest: /etc/sysconfig/openvswitch
+    owner: root
+    group: root
+    mode: 0644
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
+
 - name: network_interface | configure | SUSE- Start openvswitch
   become: yes
   service:
