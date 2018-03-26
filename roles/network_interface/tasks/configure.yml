@@ -93,6 +93,16 @@
   with_items: openvswitch_packages
   when: ovs_suse_check
 
+- name: network_interface | configure | SUSE- Install extra dpdk packages
+  become: yes
+  zypper:
+    name: "{{ item }}"
+    state: latest
+  with_items: dpdk_extra.packages
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
+
 - name: network_interface | configure | SUSE- Start openvswitch
   become: yes
   service:
