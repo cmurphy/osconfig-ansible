@@ -1,0 +1,29 @@
+#
+# (c) Copyright 2018 SUSE LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+---
+
+# This should only run on the deployer!
+
+- name: osconfig | get-ptf-signing-key | Read gpg public key for PTF repo
+  command: "/usr/bin/gpg -a --export nobody@{{ ansible_fqdn }}"
+  become: yes
+  ignore_errors: yes
+  register: ptf_signing_key_result
+
+- name: osconfig | get-ptf-signing-key | Set gpg public key fact for PTF repo
+  set_fact:
+    ptf_signing_key: "{{ ptf_signing_key_result.stdout }}"
+  when: ptf_signing_key_result.rc == 0
