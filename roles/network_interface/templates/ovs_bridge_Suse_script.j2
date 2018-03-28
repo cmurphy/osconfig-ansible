@@ -1,7 +1,7 @@
 {#
 #
 # (c) Copyright 2017 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -39,7 +39,7 @@
   {%- endif %}
   {%- if item.dpdk_port is defined %}
    {%- for slave in item.bond_slaves %}
- -- set Interface {{ slave }} type=dpdk
+ -- set Interface {{ slave }} type={{ slave | pci_dpdk_nic_driver(dpdk_network_devices) }} options:dpdk-devargs={{ slave | pci_hw_address(nic_mappings) }}
    {%- endfor %}
   {%- endif %}
  -- || true
@@ -68,7 +68,7 @@
 {% if item.port is defined %}
   $PRE_UP || ip addr flush dev {{ item.port }} || true
 {% if item.dpdk_port is defined %}
-  $PRE_UP || ovs-vsctl --timeout=5 -- --may-exist add-port {{ item.device }} {{ item.port }} -- set Interface {{ item.port }} type=dpdk -- || true
+  $PRE_UP || ovs-vsctl --timeout=5 -- --may-exist add-port {{ item.device }} {{ item.port }} -- set Interface {{ item.port }} type={{ item.device | pci_dpdk_nic_driver(dpdk_network_devices) }} options:dpdk-devargs={{ item.device | pci_hw_address(nic_mappings) }} -- || true
 {% else %}
   $PRE_UP || ovs-vsctl --timeout=5 -- --may-exist add-port {{ item.device }} {{ item.port }} -- || true
 {% if item.force_interface_mtu is defined and item.interface_mtu is defined %}

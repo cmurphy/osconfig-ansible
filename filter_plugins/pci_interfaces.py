@@ -1,6 +1,6 @@
 #
 # (c) Copyright 2016 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -31,7 +31,14 @@
 # pci_validate_multi_port_interfaces: This is to validate that vf_count
 #              is not configured for more than one port of multi-port
 #              interfaces.
+# pci_hw_address: Get the pci bus address of the pci card using
+#                 the device name by searching a mapping table.
+# pci_dpdk_nic_driver: Get the name of the driver used by the DPDK
+#                      pci device devname
 #
+
+from ansible import errors
+
 
 def pci_changed(new_list, old_list):
     """Returns True or False based on the two lists are same or not."""
@@ -166,6 +173,47 @@ def pci_validate_multi_port_interfaces(multi_port_interfaces, config_scripts):
                         return "For multi-port interfaces, vf_count cannot be configured for more than one port. bus_address = %s" % bus_address['bus_address']
     return ""
 
+
+def pci_hw_address(devname, mapping_table):
+    if not devname:
+        raise errors.AnsibleFilterError("ERROR: null or empty device name")
+
+    hw_address = ''
+    for mapping in mapping_table:
+        if mapping.get('logical_name', '') == devname:
+            hw_address = mapping.get('bus_address', '')
+            break
+
+    if not hw_address:
+        raise errors.AnsibleFilterError("ERROR: PCI H/W address "
+                                        "not found for " + devname)
+
+    return hw_address
+
+
+def pci_dpdk_nic_driver(devname, dpdk_device_table):
+    if not devname:
+        raise errors.AnsibleFilterError("ERROR: null or empty device name")
+
+    try:
+        fnd_ovs = dpdk_device_table.get('FND_OVS')
+        devices = fnd_ovs.get('devices', [])
+        driver = ''
+        for device in devices:
+            if devname == device.get('name', ''):
+                driver = device.get('driver', '')
+                break
+    except Exception as e:
+        raise errors.AnsibleFilterError("ERROR: invalid DPDK device table:\n"
+                                        "Exception: %s" % str(e))
+
+    if not driver:
+        raise errors.AnsibleFilterError("ERROR: DPDK driver not found "
+                                        "for device " + devname)
+
+    return driver
+
+
 class FilterModule(object):
 
     def filters(self):
@@ -175,5 +223,7 @@ class FilterModule(object):
                 'pci_add_update_delete_list': pci_add_update_delete_list,
                 'pci_packages': pci_packages,
                 'pci_modules': pci_modules,
-                'pci_validate_multi_port_interfaces': pci_validate_multi_port_interfaces
+                'pci_validate_multi_port_interfaces': pci_validate_multi_port_interfaces,
+                'pci_hw_address': pci_hw_address,
+                'pci_dpdk_nic_driver': pci_dpdk_nic_driver
                 }
