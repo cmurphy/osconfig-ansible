@@ -1,5 +1,5 @@
 # (c) Copyright 2017 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
@@ -28,5 +28,83 @@ linuxbridge_packages:
 
 net_path: "/etc/sysconfig/network"
 
-dpdk_enabled: "False"
+dpdk_enabled: "
+  {%- if dpdk_network_devices is defined and \
+       dpdk_network_devices.FND_OVS is defined and \
+       dpdk_network_devices.FND_OVS.devices is defined -%}
+    {%- if dpdk_network_devices.FND_OVS.devices|length > 0 -%}
+      True
+    {% else %}
+      False
+    {%- endif -%}
+  {% else %}
+    False
+  {%- endif -%}"
 
+dpdk_eal_opts: "
+  {% set temp_list = [] %}
+  {%- if dpdk_network_devices is defined and \
+         dpdk_network_devices.FND_OVS is defined and \
+         dpdk_network_devices.FND_OVS.eal_options is defined -%}
+    {%- for opt in dpdk_network_devices.FND_OVS.eal_options -%}
+      {%- if opt.value is defined -%}
+        {%- if opt.value|string|length == 1 -%}
+          {%- do temp_list.append('-'+opt.name+' '+opt.value|string+' ') -%}
+        {%- else -%}
+          {%- do temp_list.append('--'+opt.name+' '+opt.value|string+' ') -%}
+        {%- endif -%}
+      {%- else -%}
+        {%- do temp_list.append(opt.name+' ') -%}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {{ temp_list | join ('') }}"
+
+dpdk_core_mask: "{{ host | item('cpu_assignments.FND_OVS.eal.bitmask', default='1') }}"
+dpdk_pmd_mask: "{{ host | item('cpu_assignments.FND_OVS.pmd.bitmask', default='2') }}"
+
+# this will leave tmp_dpdk_rx_queues either an empty string or opt.value
+tmp_dpdk_rx_queues: "
+  {%- if dpdk_network_devices is defined and \
+         dpdk_network_devices.FND_OVS is defined and \
+         dpdk_network_devices.FND_OVS.component_options is defined -%}
+    {%- for opt in dpdk_network_devices.FND_OVS.component_options -%}
+      {%- if opt.name|string == 'n-dpdk-rxqs' -%}
+        {{ opt.value }}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}"
+
+# handle the empty string as a default
+dpdk_rx_queues: "
+  {%- if tmp_dpdk_rx_queues == '' -%}
+    1
+  {%- else -%}
+    {{ tmp_dpdk_rx_queues }}
+  {%- endif -%}"
+
+dpdk_bindings: "
+  {% set temp_list = [] %}
+  {%- if dpdk_network_devices is defined and \
+         dpdk_network_devices.FND_OVS is defined and \
+         dpdk_network_devices.FND_OVS.devices is defined -%}
+    {%- for entry in dpdk_network_devices.FND_OVS.devices -%}
+      {% if entry.driver is defined -%}
+        {% do temp_list.append( '\npci ' + entry.bus_address + ' ' + entry.driver) %}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {{ temp_list | join ('') }}"
+
+dpdk_drivers: "
+  {% set temp_list = [] %}
+  {%- if dpdk_network_devices is defined and \
+         dpdk_network_devices.FND_OVS is defined and \
+         dpdk_network_devices.FND_OVS.devices is defined -%}
+    {%- for device in dpdk_network_devices.FND_OVS.devices -%}
+      {%- if device.driver is defined -%}
+        {% do temp_list.append( device.driver ) %}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {{ temp_list | unique | join(',') }}"
