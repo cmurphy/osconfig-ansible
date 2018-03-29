@@ -1,6 +1,6 @@
 #
 # (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -16,30 +16,16 @@
 #
 # Playbook for installing ntp server software
 ---
+- include_vars: "../../osconfig-common/vars/{{ ansible_os_family | lower }}.yml"
 
 - name: osconfig-ntp-server | install | Create ntp configuration file
   become: yes
   template: src=ntp.conf.j2  dest=/etc/ntp.conf
   register: ardana_notify_osconfig_ntp_restart_required
 
-- name: osconfig-ntp-server | install | Debian - Install required packages
+- name: osconfig-ntp-server | install | Install required packages
   become: yes
-  apt:
+  package:
     name: "{{ item }}"
-    state: latest
-  with_items:
-    - lockfile-progs
-    - ntpdate
-    - ntp
-    - util-linux
-  when: ansible_os_family == 'Debian'
-
-- name: osconfig-ntp-server | install | SUSE - Install required packages
-  become: yes
-  zypper:
-    name: "{{ item }}"
-    state: latest
-  with_items:
-    - ntp
-    - util-linux
-  when: ansible_os_family == 'Suse'
+    state: present
+  with_items: ntp_srv_pkgs

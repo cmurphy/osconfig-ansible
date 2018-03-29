@@ -71,9 +71,9 @@
 
 - name: network_interface | configure | RedHat- Install openvswitch packages
   become: yes
-  yum:
+  package:
     name: "{{ item }}"
-    state: latest
+    state: present
   with_items: openvswitch_packages
   when: ovs_redhat_check
 
@@ -87,17 +87,17 @@
 
 - name: network_interface | configure | SUSE- Install openvswitch packages
   become: yes
-  zypper:
+  package:
     name: "{{ item }}"
-    state: latest
+    state: present
   with_items: openvswitch_packages
   when: ovs_suse_check
 
 - name: network_interface | configure | SUSE- Install extra dpdk packages
   become: yes
-  zypper:
+  package:
     name: "{{ item }}"
-    state: latest
+    state: present
   with_items: dpdk_extra.packages
   when:
     ovs_suse_check and
@@ -192,36 +192,15 @@
     compute_with_dpdk_check
 
 
-- name: network_interface | configure | Debian- Install linux-bridge packages
+- name: network_interface | configure | Install linux-bridge packages
   become: yes
-  apt:
+  package:
     name: "{{ item }}"
-    install_recommends: no
-    state: latest
-    force: yes
+    state: present
   with_items: linuxbridge_packages
   environment: env
   when:
-    network_bridge_interfaces != [] and
-    ansible_os_family == 'Debian'
-
-- name: network_interface | configure | RedHat- Install linux-bridge packages
-  become: yes
-  yum: name={{ item }}  state=latest
-  with_items: linuxbridge_packages
-  environment: env
-  when:
-    network_bridge_interfaces != [] and
-    ansible_os_family == 'RedHat'
-
-- name: network_interface | configure | SUSE- Install linux-bridge packages
-  become: yes
-  zypper: name={{ item }}  state=latest
-  with_items: linuxbridge_packages
-  environment: env
-  when:
-    network_bridge_interfaces != [] and
-    ansible_os_family == 'Suse'
+    network_bridge_interfaces != []
 
 - name: network_interface | configure | RedHat- Provide system ifup-local support
   become: yes

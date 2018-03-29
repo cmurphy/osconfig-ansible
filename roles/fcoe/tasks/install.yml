@@ -1,5 +1,5 @@
 # (c) Copyright 2016-2017 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
 #    not use this file except in compliance with the License. You may obtain
 #    a copy of the License at
@@ -17,32 +17,12 @@
   include_vars: "{{ ansible_os_family | lower }}.yml"
 
 # install dependencies for fcoe for bnx2fc/Qlogic CNA
-- name: fcoe | install | Install the hpeLinux required packages
+- name: fcoe | install | Install the required packages
   become: yes
-  apt:
+  package:
     name: "{{ item }}"
-    state: installed
+    state: present
   with_items:
     fcoe_packages
   when:
-      host.fcoe_interfaces | length > 0 and ansible_os_family == 'Debian'
-
-- name: fcoe | install | Install the RedHat required packages
-  become: yes
-  yum:
-    name: "{{ item }}"
-    state: installed
-  with_items:
-    fcoe_packages
-  when:
-      host.fcoe_interfaces | length > 0 and ansible_os_family == 'RedHat'
-
-- name: fcoe | install | Install the SUSE required packages
-  become: yes
-  zypper:
-    name: "{{ item }}"
-    state: installed
-  with_items:
-    fcoe_packages
-  when:
-      host.fcoe_interfaces | length > 0 and ansible_os_family == 'Suse'
+      host.fcoe_interfaces | length > 0

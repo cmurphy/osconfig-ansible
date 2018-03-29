@@ -1,6 +1,6 @@
 #
 # (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -46,30 +46,13 @@
   register: collectl_conf
   when: '"collectl" in osconfig_debug_tools'
 
-- name: osconfig | setup-debug-tools | Install additional debugging packages - Debian
+- name: osconfig | setup-debug-tools | Install additional debugging packages
   become: yes
-  apt:
-    pkg: "{{ item }}"
-    force: yes
+  package:
+    name: "{{ item }}"
+    state: present
   with_items:
     "{{osconfig_debug_tools}}"
-  when: ansible_os_family == 'Debian'
-
-- name: osconfig | setup-debug-tools | Install additional debugging packages - RedHat
-  become: yes
-  yum:
-    pkg: "{{ item }}"
-  with_items:
-    "{{osconfig_debug_tools}}"
-  when: ansible_os_family == 'RedHat'
-
-- name: osconfig | setup-debug-tools | Install additional debugging packages - SUSE
-  become: yes
-  zypper:
-    pkg: "{{ item }}"
-  with_items:
-    "{{osconfig_debug_tools}}"
-  when: ansible_os_family == 'Suse'
 
 - name: osconfig | setup-debug-tools | Restart collectl if necessary
   become: yes
