@@ -52,6 +52,18 @@
   when: _sles_os_repo_stat_result.stat.exists
 
 ##############################
+# Import gpg key for PTF repo#
+##############################
+- name: osconfig | setup-zypp | Import ptf signing key into RPM key DB
+  become: yes
+  shell: |
+    ARDANA_TMPDIR=$(mktemp -d --tmpdir ardana-gpg-pubkey-XXXXXX)
+    echo "{{ hostvars['localhost']['ptf_signing_key'] }}" >> $ARDANA_TMPDIR/pub.key
+    rpmkeys --import $ARDANA_TMPDIR/pub.key
+    rm -rf $ARDANA_TMPDIR
+  when: hostvars['localhost']['ptf_signing_key'] is defined and not deployer_media_legacy_layout|bool
+
+##############################
 # Set up required SUSE Media #
 ##############################
 
@@ -59,6 +71,7 @@
   set_fact:
     _repositories:
       - Cloud
+      - PTF
       - SLES12-SP3-Pool
       - SLES12-SP3-Updates
       - SUSE-OpenStack-Cloud-8-Pool
