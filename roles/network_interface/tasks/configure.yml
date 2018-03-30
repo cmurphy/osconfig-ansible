@@ -121,6 +121,54 @@
     ovs_suse_check and
     compute_with_dpdk_check
 
+- name: network_interface | configure | SUSE- Create openvswitch script to bind dpdk nics
+  become: yes
+  template:
+    src: ovs-dpdk-bindings.j2
+    dest: /usr/share/openvswitch/scripts/ovs-dpdk-bindings
+    owner: root
+    group: root
+    mode: 0744
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
+
+- name: network_interface | configure | SUSE- Create openvswitch service script directory
+  become: yes
+  file:
+    path: /usr/lib/systemd/system/openvswitch.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
+
+- name: network_interface | configure | SUSE- Configure openvswitch to bind dpdk nics before starting
+  become: yes
+  template:
+    src: dpdk_bindings.conf.j2
+    dest: /usr/lib/systemd/system/openvswitch.service.d/dpdk_bindings.conf
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
+
+- name: network_interface | configure | SUSE- Systemctl daemon-reload
+  become: yes
+  shell: systemctl daemon-reload
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
+
+- name: network_interface | configure | SUSE- Stop openvswitch
+  become: yes
+  service:
+    name: openvswitch
+    state: stopped
+    enabled: yes
+  when: ovs_suse_check
+
 - name: network_interface | configure | SUSE- Start openvswitch
   become: yes
   service:
@@ -128,6 +176,21 @@
     state: started
     enabled: yes
   when: ovs_suse_check
+
+- name: network_interface | configure | SUSE- Configure dpdk openvswitch rxqs
+  become: yes
+  command: "ovs-vsctl set Open_vSwitch . other_config:n-dpdk-rxqs={{ dpdk_rx_queues }}"
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
+
+- name: network_interface | configure | SUSE- Configure dpdk openvswitch pmd mask
+  become: yes
+  command: "ovs-vsctl set Open_vSwitch . other_config:pmd-cpu-mask={{ dpdk_pmd_mask }}"
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
+
 
 - name: network_interface | configure | Debian- Install linux-bridge packages
   become: yes

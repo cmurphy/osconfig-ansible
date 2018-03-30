@@ -96,6 +96,19 @@ dpdk_bindings: "
   {%- endif -%}
   {{ temp_list | join ('') }}"
 
+dpdk_commands_to_bind_nics: "
+  {% set temp_list = [] %}
+  {%- if dpdk_network_devices is defined and \
+         dpdk_network_devices.FND_OVS is defined and \
+         dpdk_network_devices.FND_OVS.devices is defined -%}
+    {%- for entry in dpdk_network_devices.FND_OVS.devices -%}
+      {% if entry.driver is defined -%}
+        {% do temp_list.append('/usr/sbin/dpdk-devbind -b ' + entry.driver + ' ' + entry.bus_address) %}
+      {%- endif -%}
+    {%- endfor -%}
+  {%- endif -%}
+  {{ temp_list|join ('\n') }}"
+
 dpdk_drivers: "
   {% set temp_list = [] %}
   {%- if dpdk_network_devices is defined and \
@@ -108,3 +121,10 @@ dpdk_drivers: "
     {%- endfor -%}
   {%- endif -%}
   {{ temp_list | unique | join(',') }}"
+
+dpdk_commands_to_load_drivers: "
+  {% set temp_list = [] %}
+  {%- for driver in dpdk_drivers -%}
+    {% do temp_list.append( '/usr/sbin/modprobe --allow-unsupported ' + driver) %}
+  {%- endfor -%}
+  {{ temp_list |unique |join ('\n') }}"
