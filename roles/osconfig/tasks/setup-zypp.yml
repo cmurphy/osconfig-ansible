@@ -70,12 +70,22 @@
 - name: osconfig | setup-zypp | Add SLES and Cloud repos
   set_fact:
     _repositories:
-      - Cloud
-      - PTF
-      - SLES12-SP3-Pool
-      - SLES12-SP3-Updates
-      - SUSE-OpenStack-Cloud-8-Pool
-      - SUSE-OpenStack-Cloud-8-Updates
+      - alias: Cloud
+        name: Cloud
+      - alias: PTF
+        name: PTF
+      - alias: SLES12-SP3-Pool
+        name: SLES12-SP3-Pool
+      - alias: SLES12-SP3-Updates
+        name:  SLES12-SP3-Updates
+      - alias: SUSE-OpenStack-Cloud-8-Pool
+        name: OpenStack-Cloud-8-Pool
+      - alias: SUSE-OpenStack-Cloud-8-Updates
+        name:  OpenStack-Cloud-8-Updates
+      - alias: HPE-Helion-OpenStack-Cloud-8-Pool
+        name: OpenStack-Cloud-8-Pool
+      - alias: HPE-Helion-OpenStack-Cloud-8-Updates
+        name: OpenStack-Cloud-8-Updates
 
 - set_fact:
     suse_release: suse-{{ansible_distribution_version}}
@@ -83,9 +93,9 @@
 - name: osconfig | setup-zypp | Configure SLES and Cloud repos on nodes
   become: yes
   zypper_repository:
-    name: "{{ item }}"
-    description: "{{ item }}"
-    repo: "{{ zypp_server_http }}/SUSE-12-3/{{ ansible_architecture }}/repos/{{ item }}"
+    name: "{{ item.alias }}"
+    description: "{{ item.name }}"
+    repo: "{{ zypp_server_http }}/SUSE-12-3/{{ ansible_architecture }}/repos/{{ item.alias }}"
   with_items: _repositories
   # If the repositories are not available on the deployer, that is not
   # necessarily critical yet. The next tasks will check whether the release
@@ -193,12 +203,12 @@
       {%-   set _ = _rr_list.append(r.name) -%}
       {%- endfor -%}
       {%- for r in _repositories -%}
-      {%-   set _ = _rr_list.append(r) -%}
+      {%-   set _ = _rr_list.append(r.name) -%}
       {%- endfor -%}
       {%- if thirdparty_zypp_repo_present -%}
       {%-   set _ = _rr_list.append("tprepo") -%}
       {%- endif -%}
-      {{ _rr_list }}
+      {{ _rr_list|unique }}
 
 # include refresh task until we upgrade to Ansible 2.2+ and use the
 # zypper_repository.runrefresh flag
