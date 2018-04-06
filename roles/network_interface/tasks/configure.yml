@@ -161,13 +161,15 @@
     ovs_suse_check and
     compute_with_dpdk_check
 
-- name: network_interface | configure | SUSE- Stop openvswitch
+- name: network_interface | configure | SUSE- Restart openvswitch
   become: yes
   service:
     name: openvswitch
-    state: stopped
+    state: restarted
     enabled: yes
-  when: ovs_suse_check
+  when:
+    ovs_suse_check and
+    compute_with_dpdk_check
 
 - name: network_interface | configure | SUSE- Start openvswitch
   become: yes
