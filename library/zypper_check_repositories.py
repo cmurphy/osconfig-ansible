@@ -42,6 +42,7 @@ EXAMPLES = '''
 - name: osconfig | setup-zypp | Check that SLES and Cloud repos are installed
   zypper_check_repositories:
     expected_repodata: expected_repodata
+    brand: "SUSE OpenStack Cloud"
 '''
 
 import glob
@@ -60,9 +61,10 @@ except ModuleNotFoundError:
 from ansible.module_utils.urls import * # Provides the open_url method
 
 
-def _required_tags(expected_repodata):
+def _required_tags(expected_repodata, brand):
     tags = {repo['name']: repo['repomd']['tags']
-            for repo in expected_repodata.values()}
+            for repo in expected_repodata.values()
+            if 'brand' not in repo or repo['brand'] == brand}
     return tags
 
 
@@ -130,12 +132,12 @@ def _find_repotags():
     return found_repotags
 
 
-def run(expected_repodata):
+def run(expected_repodata, brand):
 
     found_repotags = _find_repotags()
 
     unfound_repos = []
-    for name, tags in _required_tags(expected_repodata).items():
+    for name, tags in _required_tags(expected_repodata, brand).items():
         found_tag = False
         for tag in tags:
             if tag in found_repotags:
@@ -150,14 +152,15 @@ def run(expected_repodata):
 def main():
 
     argument_spec = dict(
-        expected_repodata=dict(default=dict())
+        expected_repodata=dict(default=dict()),
+        brand=dict(type='str', required=True),
     )
     module = AnsibleModule(argument_spec=argument_spec,
                            supports_check_mode=False)
     params = module.params
 
     try:
-        run(params['expected_repodata'])
+        run(params['expected_repodata'], params['brand'])
     except Exception as e:
         module.fail_json(msg=e.message)
     module.exit_json(rc=0, changed=False,

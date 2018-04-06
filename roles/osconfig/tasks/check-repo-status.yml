@@ -17,22 +17,29 @@
 - set_fact:
     suse_release: suse-{{ansible_distribution_version}}
 
-- name: osconfig | setup-zypp | Load expected repodata
+- include: check-product-status.yml
+
+- name: osconfig | check-repo-status | Load expected repodata
   include_vars: repos-cloud.yml
 
-- name: osconfig | setup-zypp | Check that SLES and Cloud repos are installed
+- name: osconfig | check-repo-status | Set brand fact
+  set_fact:
+    brand: "{{ 'SUSE OpenStack Cloud' if (not product_flavor_soc|failed) else 'HPE Helion OpenStack Cloud' }}"
+
+- name: osconfig | check-repo-status | Check that SLES and Cloud repos are installed
   zypper_check_repositories:
     expected_repodata: "{{ expected_repodata[suse_release][ansible_architecture] }}"
+    brand: "{{ brand }}"
   register: maintenance_repos_installed
   ignore_errors: true
   when: deployer_media_legacy_layout|bool == false
 
 # Finally, if the above didn't work, fail.
-- name: osconfig | setup-zypp | Fail if unable to configure SLES and Cloud repos
+- name: osconfig | check-repo-status | Fail if unable to configure SLES and Cloud repos
   delegate_to: localhost
   fail:
     msg: >
-      The SUSE Linux Enterprise Server and SUSE OpenStack Cloud Add-On
+      The SUSE Linux Enterprise Server and {{ brand }} Add-On
       repositories are required for updates. Complete the SCC registration of
       this node with YaST, and install the appropriate Cloud Add-On product
       from Software/Add-On Products. You may also configure your deployer

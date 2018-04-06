@@ -30,12 +30,24 @@ expected_repodata:
       suse-openstack-cloud-8-pool:
         name: "SUSE-OpenStack-Cloud-8-Pool"
         repomd:
-          tags: ["obsproduct://build.suse.de/SUSE:SLE-12-SP3:Update:Products:Cloud8/suse-openstack-cloud/8/POOL/x86_64",
-                 "obsproduct://build.suse.de/SUSE:SLE-12-SP3:Update:Products:Cloud8/hpe-helion-openstack-cloud/8/POOL/x86_64"]
+          tags: ["obsproduct://build.suse.de/SUSE:SLE-12-SP3:Update:Products:Cloud8/suse-openstack-cloud/8/POOL/x86_64"]
         smt_path: "SUSE/Products/OpenStack-Cloud/8/x86_64/product"
+        brand: "SUSE OpenStack Cloud"
+      hpe-helion-openstack-cloud-8-pool:
+        name: "HPE-Helion-OpenStack-Cloud-8-Pool"
+        repomd:
+          tags: ["obsproduct://build.suse.de/SUSE:SLE-12-SP3:Update:Products:Cloud8/hpe-helion-openstack-cloud/8/POOL/x86_64"]
+        smt_path: "SUSE/Products/OpenStack-Cloud/8/x86_64/product"
+        brand: "HPE Helion OpenStack Cloud"
       suse-openstack-cloud-8-updates:
         name: "SUSE-OpenStack-Cloud-8-Updates"
         repomd:
-          tags: ["obsrepository://build.suse.de/SUSE:Updates:OpenStack-Cloud:8:x86_64/update",
-                 "obsrepository://build.suse.de/SUSE:Updates:HPE-Helion-OpenStack-Cloud:8:x86_64/update"]
+          tags: ["obsrepository://build.suse.de/SUSE:Updates:OpenStack-Cloud:8:x86_64/update"]
         smt_path: "SUSE/Updates/OpenStack-Cloud/8/x86_64/update"
+        brand: "SUSE OpenStack Cloud"
+      hpe-helion-openstack-cloud-8-updates:
+        name: "HPE-Helion-OpenStack-Cloud-8-Updates"
+        repomd:
+          tags: ["obsrepository://build.suse.de/SUSE:Updates:HPE-Helion-OpenStack-Cloud:8:x86_64/update"]
+        smt_path: "SUSE/Updates/OpenStack-Cloud/8/x86_64/update"
+        brand: "HPE Helion OpenStack Cloud"
