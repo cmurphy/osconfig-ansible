@@ -78,7 +78,6 @@
     - include: roles/osconfig/tasks/set-hostname.yml
     - include: roles/osconfig/tasks/setup-resolv-conf.yml
     - include: roles/osconfig/tasks/set-timezone.yml
-    - include: roles/osconfig/tasks/install-ansible-prereqs.yml
     - include: roles/package-consumer/tasks/install.yml
     - include: roles/package-consumer/tasks/configure.yml
     - include: roles/osconfig/tasks/copy-ardana-version-file.yml
@@ -101,9 +100,3 @@
 
 - include: sysctl.yml
 - include: udev.yml
-
-- hosts: "{{ osconfig_resources | default('resources') }}"
-  roles:
-    - osconfig-firmware
-  tasks:
-    - include: roles/osconfig-firmware/tasks/install.yml
