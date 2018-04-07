@@ -19,4 +19,5 @@
   max_fail_percentage: 0
   tasks:
     - include: roles/osconfig/tasks/check-repo-status.yml
+      when: "{{ lookup('env', 'SKIP_REPO_CHECKS')|default('') == '' }}"
     - include: roles/osconfig/tasks/check-product-status.yml
