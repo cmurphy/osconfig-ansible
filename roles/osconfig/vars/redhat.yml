@@ -14,6 +14,8 @@
 # under the License.
 #
 ---
+systemd_script_dir: /usr/lib/systemd/system
+
 osconfig_debug_tools:
   - tcpdump
   - bind-utils
