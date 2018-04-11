@@ -111,7 +111,7 @@
 # Set up SLES extras repos #
 ############################
 
-- name: osconfig | setup-zypp | Set extras repository list
+- name: osconfig | setup-zypp | Set extras repository list (legacy)
   set_fact:
     _extras_repositories:
       - alias: openstack-newton
@@ -126,15 +126,17 @@
         name: SLE_12_SP3-network
       - alias: powerdns
         name: powerdns
+  when: deployer_media_legacy_layout|bool
 
-- name: osconfig | setup-zypp | Check if specified SLES extras repos exist
+- name: osconfig | setup-zypp | Check if specified SLES extras repos exist (legacy)
   delegate_to: localhost
   stat:
     path: "{{ zypper_extras_dir }}/{{ item.name }}"
   register: _sles_extras_repos_stat_result
   with_items: _extras_repositories
+  when: deployer_media_legacy_layout|bool
 
-- name: osconfig | setup-zypp | Generate SLES repos exists map
+- name: osconfig | setup-zypp | Generate SLES repos exists map (legacy)
   set_fact:
     _extras_repo_exists: >
       {%- set _map_els = dict() -%}
@@ -142,16 +144,17 @@
       {%-   set _ = _map_els.update({r.item.name: r.stat.isdir is defined and r.stat.isdir}) -%}
       {%- endfor -%}
       {{ _map_els }}
+  when: deployer_media_legacy_layout|bool
 
-- name: osconfig | setup-zypp | Remove any old extras zypp repo on SLES nodes
+- name: osconfig | setup-zypp | Remove any old extras zypp repo on SLES nodes (legacy)
   become: yes
   zypper_repository:
     name: "{{ item.alias }}"
     state: absent
   with_items: _extras_repositories
-  when: _extras_repo_exists[item.name]
+  when: deployer_media_legacy_layout|bool and _extras_repo_exists[item.name]
 
-- name: osconfig | setup-zypp | Configure the extras zypp repo on SLES nodes
+- name: osconfig | setup-zypp | Configure the extras zypp repo on SLES nodes (legacy)
   become: yes
   zypper_repository:
     name: "{{ item.alias }}"
@@ -159,7 +162,7 @@
     repo: "{{ zypp_server }}/{{ zypper_extras_loc }}/{{ item.name }}"
     disable_gpg_check: yes
   with_items: _extras_repositories
-  when: _extras_repo_exists[item.name]
+  when: deployer_media_legacy_layout|bool and _extras_repo_exists[item.name]
 
 ############################
 # Set up third party repos #
@@ -199,9 +202,6 @@
       {%- if _sles_os_repo_stat_result.stat.exists -%}
       {%-   set _ = _rr_list.append(osconfig_zypper_os_repo_name) -%}
       {%- endif -%}
-      {%- for r in _extras_repositories -%}
-      {%-   set _ = _rr_list.append(r.name) -%}
-      {%- endfor -%}
       {%- for r in _repositories -%}
       {%-   set _ = _rr_list.append(r.name) -%}
       {%- endfor -%}
