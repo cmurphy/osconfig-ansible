@@ -19,7 +19,7 @@
   max_fail_percentage: 0
   tasks:
     - include: roles/osconfig/tasks/check-repo-status.yml
-      when: (ansible_os_family | lower) == 'suse' and
-            "{{ lookup('env', 'SKIP_REPO_CHECKS')|default('') == '' }}"
+      when: "{{ (ansible_os_family | lower) == 'suse' and
+                lookup('env', 'SKIP_REPO_CHECKS')|default('') == '' }}"
     - include: roles/osconfig/tasks/check-product-status.yml
       when: (ansible_os_family | lower) == 'suse'
