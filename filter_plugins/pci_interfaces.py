@@ -200,7 +200,7 @@ def pci_dpdk_nic_driver(devname, dpdk_device_table):
         devices = fnd_ovs.get('devices', [])
         driver = ''
         for device in devices:
-            if devname == device.get('name', ''):
+            if devname == device.get('device', ''):
                 driver = device.get('driver', '')
                 break
     except Exception as e:
