@@ -82,10 +82,10 @@
         name: OpenStack-Cloud-8-Pool
       - alias: SUSE-OpenStack-Cloud-8-Updates
         name:  OpenStack-Cloud-8-Updates
-      - alias: HPE-Helion-OpenStack-Cloud-8-Pool
-        name: OpenStack-Cloud-8-Pool
-      - alias: HPE-Helion-OpenStack-Cloud-8-Updates
-        name: OpenStack-Cloud-8-Updates
+      - alias: HPE-Helion-OpenStack-8-Pool
+        name: OpenStack-8-Pool
+      - alias: HPE-Helion-OpenStack-8-Updates
+        name: OpenStack-8-Updates
 
 - set_fact:
     suse_release: suse-{{ansible_distribution_version}}

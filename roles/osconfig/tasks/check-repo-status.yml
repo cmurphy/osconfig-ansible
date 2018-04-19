@@ -24,7 +24,7 @@
 
 - name: osconfig | check-repo-status | Set brand fact
   set_fact:
-    brand: "{{ 'SUSE OpenStack Cloud' if (not product_flavor_soc|failed) else 'HPE Helion OpenStack Cloud' }}"
+    brand: "{{ 'SUSE OpenStack Cloud' if (not product_flavor_soc|failed) else 'HPE Helion OpenStack' }}"
 
 - name: osconfig | check-repo-status | Check that SLES and Cloud repos are installed
   zypper_check_repositories:
