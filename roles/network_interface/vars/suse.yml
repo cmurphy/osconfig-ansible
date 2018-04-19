@@ -124,7 +124,7 @@ dpdk_drivers: "
 
 dpdk_commands_to_load_drivers: "
   {% set temp_list = [] %}
-  {%- for driver in dpdk_drivers -%}
+  {%- for driver in dpdk_drivers.split(',') -%}
     {% do temp_list.append( '/usr/sbin/modprobe --allow-unsupported ' + driver) %}
   {%- endfor -%}
   {{ temp_list |unique |join ('\n') }}"
