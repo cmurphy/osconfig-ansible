@@ -54,6 +54,12 @@
 ##############################
 # Import gpg key for PTF repo#
 ##############################
+# NOTE(toabctl): The include will set the hostvars['localhost']['ptf_signing_key'] variable
+- include: get-ptf-signing-key.yml
+  become: yes
+  delegate_to: localhost
+  delegate_facts: yes
+
 - name: osconfig | setup-zypp | Import ptf signing key into RPM key DB
   become: yes
   shell: |
