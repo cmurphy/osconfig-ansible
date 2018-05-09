@@ -18,7 +18,7 @@
 # This should only run on the deployer!
 
 - name: osconfig | get-ptf-signing-key | Read gpg public key for PTF repo
-  command: "/usr/bin/gpg -a --export nobody@{{ ansible_fqdn }}"
+  command: "/usr/bin/gpg -a --export 'PTF repository signing key'"
   become: yes
   ignore_errors: yes
   register: ptf_signing_key_result
