@@ -84,14 +84,20 @@
         name: SLES12-SP3-Pool
       - alias: SLES12-SP3-Updates
         name:  SLES12-SP3-Updates
+      - alias: SLES12-SP3-Updates-test
+        name:  SLES12-SP3-Updates-test
       - alias: SUSE-OpenStack-Cloud-8-Pool
         name: OpenStack-Cloud-8-Pool
       - alias: SUSE-OpenStack-Cloud-8-Updates
         name:  OpenStack-Cloud-8-Updates
+      - alias: SUSE-OpenStack-Cloud-8-Updates-test
+        name:  OpenStack-Cloud-8-Updates-test
       - alias: HPE-Helion-OpenStack-8-Pool
         name: OpenStack-8-Pool
       - alias: HPE-Helion-OpenStack-8-Updates
         name: OpenStack-8-Updates
+      - alias: HPE-Helion-OpenStack-8-Updates-test
+        name: OpenStack-8-Updates-test
 
 - set_fact:
     suse_release: suse-{{ansible_distribution_version}}
