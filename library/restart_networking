@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # (c) Copyright 2015-2017 Hewlett Packard Enterprise Development LP
-# (c) Copyright 2017 SUSE LLC
+# (c) Copyright 2017-2018 SUSE LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -299,7 +299,7 @@ def flush_interfaces(module, os_family):
     # Retrieve active interfaces
     interfaces = get_interfaces(module, os_family)
     for interface in interfaces:
-        if interface == 'lo':
+        if interface.strip() == 'lo':
             continue
 
         log.info('Flushing interface by bring down interface <%s>', interface)
