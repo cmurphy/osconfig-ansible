@@ -37,7 +37,7 @@ expected_repodata:
         name: "HPE-Helion-OpenStack-8-Pool"
         repomd:
           tags: ["obsproduct://build.suse.de/SUSE:SLE-12-SP3:Update:Products:Cloud8/hpe-helion-openstack/8/POOL/x86_64"]
-        smt_path: "SUSE/Products/OpenStack-Cloud/8/x86_64/product"
+        smt_path: "SUSE/Products/HPE-Helion-OpenStack/8/x86_64/product"
         brand: "HPE Helion OpenStack"
       suse-openstack-cloud-8-updates:
         name: "SUSE-OpenStack-Cloud-8-Updates"
@@ -49,5 +49,5 @@ expected_repodata:
         name: "HPE-Helion-OpenStack-8-Updates"
         repomd:
           tags: ["obsrepository://build.suse.de/SUSE:Updates:HPE-Helion-OpenStack:8:x86_64/update"]
-        smt_path: "SUSE/Updates/OpenStack-Cloud/8/x86_64/update"
+        smt_path: "SUSE/Updates/HPE-Helion-OpenStack/8/x86_64/update"
         brand: "HPE Helion OpenStack"
