@@ -69,6 +69,7 @@
   $PRE_UP || ip addr flush dev {{ item.port }} || true
 {% if item.dpdk_port is defined %}
   $PRE_UP || ovs-vsctl --timeout=5 -- --may-exist add-port {{ item.device }} {{ item.port }} -- set Interface {{ item.port }} type=dpdk options:dpdk-devargs={{ item.port | pci_hw_address(nic_mappings) }} -- || true
+  $PRE_UP || rm /etc/sysconfig/network/ifcfg-{{ item.port }}
 {% else %}
   $PRE_UP || ovs-vsctl --timeout=5 -- --may-exist add-port {{ item.device }} {{ item.port }} -- || true
 {% if item.force_interface_mtu is defined and item.interface_mtu is defined %}
@@ -77,9 +78,12 @@
 {% endif %}
   $PRE_UP || ifconfig {{ item.port }} up || true
   $POST_DOWN || ovs-vsctl --timeout=5 -- --if-exists del-port {{ item.device }} {{ item.port }} -- || true
+{% if item.dpdk_port is defined %}
+  $POST_DOWN || ovs-vsctl --timeout=5 -- --if-exists del-br {{ item.device }} -- || true
 {% endif %}
 {% endif %}
-{% if item.mtu is defined %}
+{% endif %}
+ {% if item.mtu is defined %}
   $POST_UP || ip link set dev {{ item.device }} mtu {{ item.mtu }} || true
-{% endif %}
+ {% endif %}
 {% include 'if_routes_Suse.j2' %}
