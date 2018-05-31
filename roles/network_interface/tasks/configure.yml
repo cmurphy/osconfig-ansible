@@ -754,3 +754,31 @@
   file:
     path: "{{ shadow_dir }}"
     state: absent
+
+- name: network_interface | configure | Copy RHEL ovs reboot workaround script
+  become: yes
+  template:
+    src: "ovs_reboot_workaround.sh.j2"
+    dest: "/tmp/ovs_reboot_workaround.sh"
+    mode: 0700
+  when:
+    - ansible_os_family == 'RedHat'
+    - ovs_bridge_interfaces | length > 0
+
+- name: network_interface | configure | Run RHEL ovs reboot workaround script
+  become: yes
+  command: >
+    /tmp/ovs_reboot_workaround.sh
+  register: _ovs_reboot_workaround_result
+  when:
+    - ansible_os_family == 'RedHat'
+    - ovs_bridge_interfaces | length > 0
+
+- name: network_interface | configure | Remove RHEL ovs reboot workaround script
+  become: yes
+  file:
+    state: absent
+    path: "/tmp/ovs_reboot_workaround.sh"
+  when:
+    - ansible_os_family == 'RedHat'
+    - ovs_bridge_interfaces | length > 0

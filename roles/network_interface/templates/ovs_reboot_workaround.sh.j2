@@ -1,0 +1,162 @@
+#!/bin/bash
+#
+# (c) Copyright 2018 SUSE LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+#
+# ##########################################################################
+#
+# Workaround for network connectivity issue at node reboot when mgmt and ovs
+# bridges are using same port. In that case, ovs would not be able to connect
+# to rabbitmq (some models have it on controller) hence would not be able to
+# complete network connectivity. So here normal ovs flow is added, to have that
+# connectivity at node bootup.
+# Adding this ovs flow in /etc/sysconfig/network-scripts/ifup-local-{intf}
+# results in error when network restart is done by playbooks. That's why
+# adding this flow just for reboot situation by adding in /etc/rc.d/rc.local
+#
+# ###########################################################################
+# Usage: (need to run as root on host where this workaround is needed)
+#
+# ./ovs_reboot_workaround.sh
+#
+# ###########################################################################
+#
+
+# host (resource) managment ip
+g_host_mgmt_ip=''
+# ovs bidge device name
+g_device_name=''
+
+mqhost_route_info() {
+
+  {% if NEU.consumes_FND_RMQ.members.private[0].ip_address is defined %}
+  mq_hostname='{{ NEU.consumes_FND_RMQ.members.private[0].ip_address }}'
+  {%- endif %}
+
+  # rabbit host name or ip is required and should be non-empty.
+  if [ -n "$mq_hostname" ] ; then
+    # check rabbitmq host ip if first argument is host name
+    mqhost_ip=$(ping $mq_hostname -c 1 | awk 'NR < 2 {gsub(/[()]/, "", $3); print $3}')
+    if [ $? -eq 0 ]; then
+      # get network device name
+      g_device_name=$(ip route get $mqhost_ip | awk 'NR < 2 {print $3}')
+      if [ $? -eq 0 ]; then
+        # get route-src host mgmt network ip
+        g_host_mgmt_ip=$(ip route get $mqhost_ip | awk 'NR < 2 {print $5}')
+      fi
+    fi
+  fi
+
+}
+
+# Check is done based on networking data in input model.
+# First get ovs bridge address and device information from input model
+# And then compare the address with host mgmt ip to confirm br device name
+check_via_input_model() {
+
+    local device_name=''
+    declare -A ovs_br_arr
+{% for item in ovs_bridge_interfaces -%}
+    {% if host.my_network_tags is defined -%}
+      {%- for network_tag in host.my_network_tags -%}
+        {%- if network_tag.bridge_port is defined and network_tag.bridge_port == item.port -%}
+          {%- if item.address is defined and network_tag.address == item.address%}
+    ovs_br_arr['{{ item.address }}']='{{ item.device }}'
+          {% endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endif %}
+{%- endfor %}
+
+    for item_key in "${!ovs_br_arr[@]}"
+    do
+        if [ "$g_host_mgmt_ip" = "$item_key" ]; then
+            device_name="${ovs_br_arr[$item_key]}"
+            break;
+        fi
+    done
+
+    if [ -n "$device_name" ] ; then
+        g_device_name="$device_name"
+    else
+        g_device_name=''
+    fi
+
+}
+
+
+# Check if same bridge port is used between ovs and mgmt bridge
+# If device is not set, then its set the device for that shared bridge port
+# Check is done using ovs cli commands here
+check_via_ovs_cli() {
+
+    local device_found=0
+    check_ovs_configured=$(ovs-vsctl show)
+
+    if [ $? -eq 0 ]; then
+      # check if above found network exists in ovs
+      device_found=$(ovs-vsctl list-br | grep $g_device_name)
+      if [ $? -eq 0 ] && [ -n "$device_found" ]; then
+        br_exists=$(ovs-vsctl br-exists $g_device_name)
+        if [ $? -eq 0 ]; then
+          device_found=1
+        fi
+      fi
+    fi
+    if [ $device_found -eq 0 ] ; then
+        g_device_name=''
+    fi
+
+}
+
+mqhost_route_info
+
+if [ -n $g_device_name ] ; then
+
+  check_via_input_model
+
+  if [ -n $g_device_name ] ; then
+    check_via_ovs_cli
+  fi
+
+fi
+
+
+# if bridge device name is missing or made blank in previous checks,
+# skip the workaround as its not needed here.
+if [ -z "$g_device_name" ] ; then
+    echo "Ovs reboot workaround is not applied as cannot identify bridge device name"
+    exit 0
+fi
+
+# check if command to add-flow already exists in
+# startup file executed at node bootup
+CMD_LINE="ovs-ofctl add-flow $g_device_name priority=0,actions=normal"
+FILE="/etc/rc.d/rc.local"
+
+# file should exists, just create if not there
+if [ ! -f $FILE ]; then
+  touch $FILE
+  echo "#!/bin/bash" >> "$FILE"
+fi
+
+# check file has execute permission, if not add it
+if [ ! -x $FILE ]; then
+  chmod +x $FILE
+fi
+
+# append command line in end if not there.
+grep -qF "$CMD_LINE" "$FILE" || echo "$CMD_LINE" >> "$FILE"
+
+echo "Ovs reboot workaround is applied"
